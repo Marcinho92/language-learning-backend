@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
-import { School, List, Add } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, Button, Container, Box } from '@mui/material';
 
-function Navigation() {
+const Navigation = ({ onLogout }) => {
   return (
     <AppBar position="static" sx={{ mb: 4 }}>
       <Container>
@@ -11,34 +10,39 @@ function Navigation() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Language Learning
           </Typography>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/"
-            startIcon={<List />}
-          >
-            Word List
-          </Button>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/learn"
-            startIcon={<School />}
-          >
-            Learn
-          </Button>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/add"
-            startIcon={<Add />}
-          >
-            Add Word
-          </Button>
+          <Box>
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/words"
+            >
+              Words
+            </Button>
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/learn"
+            >
+              Learn
+            </Button>
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/add"
+            >
+              Add Word
+            </Button>
+            <Button
+              color="inherit"
+              onClick={onLogout}
+            >
+              Logout
+            </Button>
+          </Box>
         </Toolbar>
       </Container>
     </AppBar>
   );
-}
+};
 
 export default Navigation; 

@@ -1,48 +1,113 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
-  Paper,
   Typography,
   TextField,
   Button,
   Box,
+  Paper,
+  Rating,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Alert,
 } from '@mui/material';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-function WordLearning() {
+const WordLearning = () => {
   const [currentWord, setCurrentWord] = useState(null);
-  const [translation, setTranslation] = useState('');
+  const [userTranslation, setUserTranslation] = useState('');
   const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [filters, setFilters] = useState({
+    language: '',
+    difficultyLevel: '',
+  });
+  const navigate = useNavigate();
 
-  const fetchRandomWord = async () => {
+  const fetchRandomWord = useCallback(async () => {
     try {
-      setLoading(true);
-      const response = await axios.get('/api/words/random');
-      setCurrentWord(response.data);
-      setTranslation('');
-      setResult(null);
+      const authHeader = sessionStorage.getItem('authHeader');
+      if (!authHeader) {
+        navigate('/login');
+        return;
+      }
+
+      const params = new URLSearchParams();
+      if (filters.language) params.append('language', filters.language);
+      if (filters.difficultyLevel) params.append('difficultyLevel', filters.difficultyLevel);
+
+      const response = await fetch(`http://localhost:8080/api/words/random?${params}`, {
+        headers: {
+          'Authorization': authHeader
+        }
+      });
+
+      if (response.ok) {
+        const word = await response.json();
+        setCurrentWord(word);
+        setUserTranslation('');
+        setResult(null);
+        setError('');
+      } else {
+        const errorData = await response.text();
+        setError(errorData || 'Failed to fetch word');
+        setCurrentWord(null);
+      }
     } catch (error) {
       console.error('Error fetching random word:', error);
-    } finally {
-      setLoading(false);
+      setError('Error fetching word. Please try again.');
+      setCurrentWord(null);
+    }
+  }, [filters, navigate]);
+
+  useEffect(() => {
+    fetchRandomWord();
+  }, [fetchRandomWord]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!currentWord) return;
+
+    try {
+      const authHeader = sessionStorage.getItem('authHeader');
+      if (!authHeader) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch(
+        `http://localhost:8080/api/words/${currentWord.id}/check?translation=${encodeURIComponent(userTranslation)}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': authHeader
+          }
+        }
+      );
+
+      if (response.ok) {
+        const isCorrect = await response.json();
+        setResult({
+          correct: isCorrect,
+          message: isCorrect ? 'Correct!' : `Incorrect. The correct answer is: ${currentWord.translation}`,
+        });
+      } else {
+        setError('Failed to check translation. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error checking translation:', error);
+      setError('Error checking translation. Please try again.');
     }
   };
 
-  const checkTranslation = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.post('/api/words/check-translation', {
-        originalWord: currentWord.originalWord,
-        translation: translation,
-      });
-      setResult(response.data);
-    } catch (error) {
-      console.error('Error checking translation:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
@@ -50,77 +115,110 @@ function WordLearning() {
       <Typography variant="h4" gutterBottom align="center">
         Learn Words
       </Typography>
-      <Paper sx={{ p: 3, mt: 2 }}>
-        {!currentWord ? (
-          <Box display="flex" justifyContent="center">
+
+      <Box sx={{ mb: 4 }}>
+        <FormControl sx={{ mr: 2, minWidth: 120 }}>
+          <InputLabel>Language</InputLabel>
+          <Select
+            name="language"
+            value={filters.language}
+            onChange={handleFilterChange}
+            label="Language"
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="english">English</MenuItem>
+            <MenuItem value="polish">Polish</MenuItem>
+            <MenuItem value="spanish">Spanish</MenuItem>
+            <MenuItem value="german">German</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 120 }}>
+          <InputLabel>Difficulty</InputLabel>
+          <Select
+            name="difficultyLevel"
+            value={filters.difficultyLevel}
+            onChange={handleFilterChange}
+            label="Difficulty"
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value={1}>Easy</MenuItem>
+            <MenuItem value={2}>Medium</MenuItem>
+            <MenuItem value={3}>Hard</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {currentWord ? (
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Translate this word:
+          </Typography>
+          <Typography variant="h4" gutterBottom>
+            {currentWord.originalWord}
+          </Typography>
+          <Box sx={{ mb: 2 }}>
+            <Typography component="span" sx={{ mr: 1 }}>
+              Difficulty:
+            </Typography>
+            <Rating value={currentWord.difficultyLevel} max={3} readOnly />
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography component="span" sx={{ mr: 1 }}>
+              Current Proficiency:
+            </Typography>
+            <Rating value={currentWord.proficiencyLevel} max={5} readOnly />
+          </Box>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="Your Translation"
+              value={userTranslation}
+              onChange={(e) => setUserTranslation(e.target.value)}
+              margin="normal"
+              required
+            />
             <Button
+              type="submit"
               variant="contained"
               color="primary"
-              onClick={fetchRandomWord}
-              disabled={loading}
+              fullWidth
+              sx={{ mt: 2 }}
             >
-              Start Learning
+              Check
             </Button>
-          </Box>
-        ) : (
-          <>
-            <Typography variant="h5" gutterBottom>
-              Translate this word:
-            </Typography>
-            <Typography variant="h4" color="primary" gutterBottom>
-              {currentWord.originalWord}
-            </Typography>
-            <Typography variant="subtitle1" gutterBottom>
-              Language: {currentWord.language}
-            </Typography>
-            <Typography variant="subtitle2" gutterBottom>
-              Difficulty: {currentWord.difficultyLevel}
-            </Typography>
-            <Box mt={3}>
-              <TextField
-                fullWidth
-                label="Your translation"
-                value={translation}
-                onChange={(e) => setTranslation(e.target.value)}
-                disabled={loading}
-              />
-            </Box>
-            <Box mt={2} display="flex" gap={2}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={checkTranslation}
-                disabled={!translation || loading}
-                fullWidth
+          </form>
+          {result && (
+            <Box sx={{ mt: 2 }}>
+              <Typography
+                color={result.correct ? 'success.main' : 'error.main'}
+                variant="h6"
               >
-                Check
-              </Button>
+                {result.message}
+              </Typography>
               <Button
                 variant="outlined"
-                onClick={fetchRandomWord}
-                disabled={loading}
+                color="primary"
                 fullWidth
+                sx={{ mt: 2 }}
+                onClick={fetchRandomWord}
               >
                 Next Word
               </Button>
             </Box>
-            {result && (
-              <Box mt={2}>
-                <Alert severity={result.correct ? "success" : "error"}>
-                  {result.message}
-                  {!result.correct && (
-                    <Typography sx={{ mt: 1 }}>
-                      Correct translation: {currentWord.translation}
-                    </Typography>
-                  )}
-                </Alert>
-              </Box>
-            )}
-          </>
-        )}
-      </Paper>
+          )}
+        </Paper>
+      ) : !error && (
+        <Typography align="center">No words available for the selected criteria.</Typography>
+      )}
     </Container>
   );
-}
+};
 
 export default WordLearning; 

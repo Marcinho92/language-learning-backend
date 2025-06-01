@@ -1,5 +1,6 @@
 package com.example.languagelearning.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -19,17 +20,27 @@ public class Word {
     @Column(nullable = false)
     private String originalWord;
 
-    @NotBlank(message = "Translation/description cannot be empty")
+    @NotBlank(message = "Translation cannot be empty")
     @Column(nullable = false)
     private String translation;
-
-    @NotNull(message = "Difficulty level must be specified")
-    @Min(value = 1, message = "Difficulty level must be between 1 and 3")
-    @Max(value = 3, message = "Difficulty level must be between 1 and 3")
-    @Column(nullable = false)
-    private Integer difficultyLevel;
 
     @NotBlank(message = "Language cannot be empty")
     @Column(nullable = false)
     private String language;
+
+    @NotNull(message = "Difficulty level cannot be null")
+    @Min(value = 1, message = "Difficulty level must be at least 1")
+    @Max(value = 3, message = "Difficulty level must be at most 3")
+    @Column(nullable = false)
+    private Integer difficultyLevel;
+
+    @Min(value = 1, message = "Proficiency level must be at least 1")
+    @Max(value = 5, message = "Proficiency level must be at most 5")
+    @Column(nullable = false)
+    private Integer proficiencyLevel = 1;
+
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 } 

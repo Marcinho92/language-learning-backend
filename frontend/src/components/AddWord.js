@@ -1,28 +1,26 @@
 import React, { useState } from 'react';
 import {
-  Container,
-  Paper,
-  Typography,
   TextField,
   Button,
+  Container,
+  Typography,
   Box,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Alert,
 } from '@mui/material';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-function AddWord() {
+const AddWord = () => {
+  const navigate = useNavigate();
   const [word, setWord] = useState({
     originalWord: '',
     translation: '',
     language: 'english',
     difficultyLevel: 1,
   });
-  const [status, setStatus] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,53 +33,80 @@ function AddWord() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
-      await axios.post('/api/words', word);
-      setStatus({
-        type: 'success',
-        message: 'Word added successfully!',
+      console.log('Sending word data:', word);
+      
+      const authHeader = sessionStorage.getItem('authHeader');
+      if (!authHeader) {
+        navigate('/login');
+        return;
+      }
+      
+      const response = await fetch('http://localhost:8080/api/words', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authHeader
+        },
+        body: JSON.stringify(word),
       });
-      setWord({
-        originalWord: '',
-        translation: '',
-        language: 'english',
-        difficultyLevel: 1,
+
+      const contentType = response.headers.get('content-type');
+      if (response.ok) {
+        navigate('/words');
+      } else {
+        let errorMessage;
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          errorMessage = errorData.message;
+        } else {
+          const textError = await response.text();
+          errorMessage = textError || `Error: ${response.status} ${response.statusText}`;
+        }
+        console.error('Server response:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorMessage
+        });
+        setError(errorMessage || `Failed to add word (Status: ${response.status})`);
+      }
+    } catch (err) {
+      console.error('Error details:', {
+        message: err.message,
+        stack: err.stack
       });
-    } catch (error) {
-      setStatus({
-        type: 'error',
-        message: 'Error adding word. Please try again.',
-      });
-      console.error('Error adding word:', error);
-    } finally {
-      setLoading(false);
+      setError(`An error occurred while adding the word: ${err.message}`);
     }
   };
 
   return (
     <Container maxWidth="sm">
-      <Typography variant="h4" gutterBottom align="center">
-        Add New Word
-      </Typography>
-      <Paper sx={{ p: 3, mt: 2 }}>
-        <form onSubmit={handleSubmit}>
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Add New Word
+        </Typography>
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
+        <Box component="form" onSubmit={handleSubmit}>
           <TextField
             fullWidth
+            margin="normal"
             label="Original Word"
             name="originalWord"
             value={word.originalWord}
             onChange={handleChange}
             required
-            margin="normal"
           />
           <TextField
             fullWidth
+            margin="normal"
             label="Translation"
             name="translation"
             value={word.translation}
             onChange={handleChange}
             required
-            margin="normal"
           />
           <FormControl fullWidth margin="normal">
             <InputLabel>Language</InputLabel>
@@ -90,13 +115,11 @@ function AddWord() {
               value={word.language}
               onChange={handleChange}
               label="Language"
-              required
             >
               <MenuItem value="english">English</MenuItem>
               <MenuItem value="polish">Polish</MenuItem>
-              <MenuItem value="french">French</MenuItem>
-              <MenuItem value="german">German</MenuItem>
               <MenuItem value="spanish">Spanish</MenuItem>
+              <MenuItem value="german">German</MenuItem>
             </Select>
           </FormControl>
           <FormControl fullWidth margin="normal">
@@ -106,33 +129,25 @@ function AddWord() {
               value={word.difficultyLevel}
               onChange={handleChange}
               label="Difficulty Level"
-              required
             >
               <MenuItem value={1}>Easy</MenuItem>
               <MenuItem value={2}>Medium</MenuItem>
               <MenuItem value={3}>Hard</MenuItem>
             </Select>
           </FormControl>
-          <Box mt={3}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              disabled={loading}
-            >
-              Add Word
-            </Button>
-          </Box>
-        </form>
-        {status && (
-          <Box mt={2}>
-            <Alert severity={status.type}>{status.message}</Alert>
-          </Box>
-        )}
-      </Paper>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 3 }}
+          >
+            Add Word
+          </Button>
+        </Box>
+      </Box>
     </Container>
   );
-}
+};
 
 export default AddWord; 

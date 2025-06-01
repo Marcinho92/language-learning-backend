@@ -9,8 +9,9 @@ import java.util.Optional;
 
 @Repository
 public interface WordRepository extends JpaRepository<Word, Long> {
-    List<Word> findByLanguage(String language);
-    List<Word> findByDifficultyLevel(Integer difficultyLevel);
-    List<Word> findByLanguageAndDifficultyLevel(String language, Integer difficultyLevel);
-    Optional<Word> findByOriginalWord(String originalWord);
+    List<Word> findByUserEmail(String email);
+    List<Word> findByUserEmailAndLanguage(String email, String language);
+    List<Word> findByUserEmailAndDifficultyLevel(String email, Integer difficultyLevel);
+    List<Word> findByUserEmailAndLanguageAndDifficultyLevel(String email, String language, Integer difficultyLevel);
+    Optional<Word> findByOriginalWordAndUserEmail(String originalWord, String email);
 } 

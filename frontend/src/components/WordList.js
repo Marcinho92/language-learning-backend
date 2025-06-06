@@ -16,6 +16,7 @@ import {
 import { Delete } from '@mui/icons-material';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
 
 const WordList = () => {
   const [words, setWords] = useState([]);
@@ -35,7 +36,7 @@ const WordList = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:8080/api/words', {
+      const response = await fetch(`${API_URL}/api/words`, {
         headers: {
           'Authorization': authHeader
         }

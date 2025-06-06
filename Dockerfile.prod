@@ -1,28 +1,69 @@
 # Build stage
-FROM maven:3.9.5-eclipse-temurin-21-alpine AS build
+FROM maven:3.9.6-eclipse-temurin-21-jammy AS build
 WORKDIR /app
+
+# Add build arguments
+ARG SPRING_PROFILES_ACTIVE=prod
+
+# Set environment variables for build
+ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+
 COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Run stage
-FROM eclipse-temurin:21-jre-alpine
+# Runtime stage
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8080
 
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+# Create startup script with explicit port configuration
+RUN echo '#!/bin/bash\n\
+echo "Starting application..."\n\
+\n\
+echo "Checking environment variables..."\n\
+for VAR in DATABASE_USER DATABASE_PASSWORD CLOUD_SQL_CONNECTION_NAME DATABASE_NAME; do\n\
+    if [ -z "${!VAR}" ]; then\n\
+        echo "ERROR: $VAR is not set"\n\
+        exit 1\n\
+    fi\ndone\n\
+\n\
+echo "All required environment variables are set"\n\
+echo "Starting Java application on port ${PORT:=8080}..."\n\
+\n\
+exec java \
+    -XX:+UseContainerSupport \
+    -XX:MaxRAMPercentage=75.0 \
+    -XX:InitialRAMPercentage=50.0 \
+    -Djava.security.egd=file:/dev/./urandom \
+    -Dserver.port=${PORT:=8080} \
+    -Dserver.address=0.0.0.0 \
+    -Dspring.profiles.active=prod \
+    -Dmanagement.endpoints.web.exposure.include=health,info,metrics \
+    -Dmanagement.endpoint.health.probes.enabled=true \
+    -Dmanagement.endpoint.health.show-details=always \
+    -Dmanagement.health.livenessState.enabled=true \
+    -Dmanagement.health.readinessState.enabled=true \
+    -Dmanagement.endpoint.health.group.readiness.include=db,diskSpace \
+    -Dmanagement.endpoint.health.group.liveness.include=ping \
+    -Dmanagement.health.probes.add-additional-paths=true \
+    -jar app.jar' > /app/start.sh && chmod +x /app/start.sh
+
+# Install basic utilities
+RUN apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set environment variables
+ENV PORT=8080
 ENV SPRING_PROFILES_ACTIVE=prod
 
-# Add wget for health check
-RUN apk add --no-cache wget
+# Expose port
+EXPOSE ${PORT}
 
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} \
-    -Dserver.port=${PORT:-8080} \
-    -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
-    -Dlogging.level.org.springframework=INFO \
-    -Dlogging.level.com.example=DEBUG \
-    -jar app.jar"]
+# Health check configuration
+HEALTHCHECK --interval=5s --timeout=10s --start-period=180s --retries=3 \
+  CMD curl -f http://localhost:${PORT}/actuator/health/liveness || exit 1
 
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget -q --spider http://localhost:${PORT:-8080}/actuator/health || exit 1 
+# Set the startup script as the entrypoint
+ENTRYPOINT ["/app/start.sh"] 

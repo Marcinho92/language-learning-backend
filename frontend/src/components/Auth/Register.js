@@ -1,39 +1,34 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../../api/apiClient';
 
 const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setIsLoading(true);
 
         if (password !== confirmPassword) {
             setError('Passwords do not match');
+            setIsLoading(false);
             return;
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            if (response.ok) {
-                navigate('/login');
-            } else {
-                const error = await response.json();
-                setError(error.message || 'Registration failed');
-            }
+            await apiClient.post('/api/auth/register', { email, password });
+            navigate('/login');
         } catch (err) {
-            setError('An error occurred during registration');
+            setError(err.message || 'An error occurred during registration');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -96,6 +91,7 @@ const Register = () => {
                         fullWidth
                         variant="contained"
                         sx={{ mt: 3, mb: 2 }}
+                        disabled={isLoading}
                     >
                         Sign Up
                     </Button>

@@ -1,33 +1,29 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../../config';
 
 const Login = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setIsLoading(true);
-
         try {
-            const response = await fetch(`${API_URL}/api/auth/login`, {
+            const authHeader = 'Basic ' + btoa(email + ':' + password);
+            
+            const response = await fetch('http://localhost:8080/api/auth/login', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username: email, password }),
+                    'Authorization': authHeader
+                }
             });
 
             if (response.ok) {
                 const user = await response.json();
                 // Store credentials for later use
-                sessionStorage.setItem('authHeader', response.headers.get('Authorization'));
+                sessionStorage.setItem('authHeader', authHeader);
                 sessionStorage.setItem('userEmail', email);
                 onLogin(user);
                 navigate('/words');
@@ -46,8 +42,6 @@ const Login = ({ onLogin }) => {
         } catch (err) {
             console.error('Login error:', err);
             setError('An error occurred during login');
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -99,9 +93,8 @@ const Login = ({ onLogin }) => {
                         fullWidth
                         variant="contained"
                         sx={{ mt: 3, mb: 2 }}
-                        disabled={isLoading}
                     >
-                        {isLoading ? 'Signing in...' : 'Sign In'}
+                        Sign In
                     </Button>
                     <Button
                         fullWidth

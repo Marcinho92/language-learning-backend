@@ -11,7 +11,6 @@ import {
   MenuItem,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../config';
 
 const AddWord = () => {
   const navigate = useNavigate();
@@ -22,7 +21,6 @@ const AddWord = () => {
     difficultyLevel: 1,
   });
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,9 +32,6 @@ const AddWord = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
     try {
       console.log('Sending word data:', word);
       
@@ -46,7 +41,7 @@ const AddWord = () => {
         return;
       }
       
-      const response = await fetch(`${API_URL}/api/words`, {
+      const response = await fetch('http://localhost:8080/api/words', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,8 +75,6 @@ const AddWord = () => {
         stack: err.stack
       });
       setError(`An error occurred while adding the word: ${err.message}`);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -148,9 +141,8 @@ const AddWord = () => {
             color="primary"
             fullWidth
             sx={{ mt: 3 }}
-            disabled={isLoading}
           >
-            {isLoading ? 'Adding...' : 'Add Word'}
+            Add Word
           </Button>
         </Box>
       </Box>

@@ -14,7 +14,6 @@ import {
   Alert,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../config';
 
 const WordLearning = () => {
   const [currentWord, setCurrentWord] = useState(null);
@@ -35,12 +34,11 @@ const WordLearning = () => {
         return;
       }
 
-      const params = new URLSearchParams({
-        ...(filters.language && { language: filters.language }),
-        ...(filters.difficultyLevel && { difficultyLevel: filters.difficultyLevel })
-      }).toString();
+      const params = new URLSearchParams();
+      if (filters.language) params.append('language', filters.language);
+      if (filters.difficultyLevel) params.append('difficultyLevel', filters.difficultyLevel);
 
-      const response = await fetch(`${API_URL}/api/words/random?${params}`, {
+      const response = await fetch(`http://localhost:8080/api/words/random?${params}`, {
         headers: {
           'Authorization': authHeader
         }
@@ -80,7 +78,7 @@ const WordLearning = () => {
       }
 
       const response = await fetch(
-        `${API_URL}/api/words/${currentWord.id}/check?translation=${encodeURIComponent(userTranslation)}`,
+        `http://localhost:8080/api/words/${currentWord.id}/check?translation=${encodeURIComponent(userTranslation)}`,
         {
           method: 'POST',
           headers: {

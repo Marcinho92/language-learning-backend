@@ -8,21 +8,7 @@ RUN npm run build
 
 # Run stage
 FROM nginx:alpine
-
-# Copy built files and configuration
 COPY --from=build /app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Install necessary tools
-RUN apk add --no-cache curl
-
-# Create nginx pid directory
-RUN mkdir -p /run/nginx
-
-# Verify nginx configuration
-RUN nginx -t
-
-EXPOSE 3000
-
-# Use a simple command to start nginx
-CMD ["nginx"] 
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"] 

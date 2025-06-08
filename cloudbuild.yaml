@@ -25,22 +25,8 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      - '--port'
-      - '8080'
-      - '--memory'
-      - '512Mi'
-      - '--clear-env-vars'
-      - '--clear-secrets'
-      - '--update-secrets'
-      - 'DATABASE_URL=database_url:latest'
-      - '--update-secrets'
-      - 'DATABASE_USER=database_user:latest'
-      - '--update-secrets'
-      - 'DATABASE_PASSWORD=database_password:latest'
-      - '--update-secrets'
-      - 'JWT_SECRET=jwt_secret:latest'
-      - '--update-secrets'
-      - 'FRONTEND_URL=frontend_url:latest'
+      - '--set-env-vars'
+      - 'DATABASE_URL=${_DATABASE_URL},DATABASE_USER=${_DATABASE_USER},DATABASE_PASSWORD=${_DATABASE_PASSWORD},JWT_SECRET=${_JWT_SECRET},FRONTEND_URL=${_FRONTEND_URL}'
 
   # Deploy frontend to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -56,12 +42,15 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      - '--port'
-      - '3000'
 
 images:
   - 'gcr.io/$PROJECT_ID/language-learning-backend'
   - 'gcr.io/$PROJECT_ID/language-learning-frontend'
 
 substitutions:
-  _REGION: 'europe-central2'
+  _REGION: europe-central2 # Warsaw
+  _DATABASE_URL: # Will be set in Cloud Build trigger
+  _DATABASE_USER: # Will be set in Cloud Build trigger
+  _DATABASE_PASSWORD: # Will be set in Cloud Build trigger
+  _JWT_SECRET: # Will be set in Cloud Build trigger
+  _FRONTEND_URL: # Will be set in Cloud Build trigger 

@@ -8,7 +8,7 @@ services:
     depends_on:
       - postgres
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql:///language_learning?cloudSqlInstance=YOUR-PROJECT:europe-central2:language-learning-db&socketFactory=com.google.cloud.sql.postgres.SocketFactory
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/language_learning
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
     networks:

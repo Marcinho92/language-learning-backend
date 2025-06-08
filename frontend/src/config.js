@@ -1,1 +1,0 @@
-export const API_URL = 'https://language-learning-backend-850755743835.europe-central2.run.app'; 

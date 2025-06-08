@@ -2,7 +2,7 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, Container, Box } from '@mui/material';
 
-const Navigation = ({ onLogout }) => {
+const Navigation = () => {
   return (
     <AppBar position="static" sx={{ mb: 4 }}>
       <Container>
@@ -31,12 +31,6 @@ const Navigation = ({ onLogout }) => {
               to="/add"
             >
               Add Word
-            </Button>
-            <Button
-              color="inherit"
-              onClick={onLogout}
-            >
-              Logout
             </Button>
           </Box>
         </Toolbar>

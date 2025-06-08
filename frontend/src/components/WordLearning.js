@@ -13,41 +13,29 @@ import {
   MenuItem,
   Alert,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 
 const WordLearning = () => {
   const [currentWord, setCurrentWord] = useState(null);
-  const [userTranslation, setUserTranslation] = useState('');
+  const [translation, setTranslation] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({
     language: '',
     difficultyLevel: '',
   });
-  const navigate = useNavigate();
 
   const fetchRandomWord = useCallback(async () => {
     try {
-      const authHeader = sessionStorage.getItem('authHeader');
-      if (!authHeader) {
-        navigate('/login');
-        return;
-      }
-
       const params = new URLSearchParams();
       if (filters.language) params.append('language', filters.language);
       if (filters.difficultyLevel) params.append('difficultyLevel', filters.difficultyLevel);
 
-      const response = await fetch(`http://localhost:8080/api/words/random?${params}`, {
-        headers: {
-          'Authorization': authHeader
-        }
-      });
+      const response = await fetch(`http://localhost:8080/api/words/random?${params}`);
 
       if (response.ok) {
         const word = await response.json();
         setCurrentWord(word);
-        setUserTranslation('');
+        setTranslation('');
         setResult(null);
         setError('');
       } else {
@@ -60,7 +48,7 @@ const WordLearning = () => {
       setError('Error fetching word. Please try again.');
       setCurrentWord(null);
     }
-  }, [filters, navigate]);
+  }, [filters]);
 
   useEffect(() => {
     fetchRandomWord();
@@ -71,19 +59,10 @@ const WordLearning = () => {
     if (!currentWord) return;
 
     try {
-      const authHeader = sessionStorage.getItem('authHeader');
-      if (!authHeader) {
-        navigate('/login');
-        return;
-      }
-
       const response = await fetch(
-        `http://localhost:8080/api/words/${currentWord.id}/check?translation=${encodeURIComponent(userTranslation)}`,
+        `http://localhost:8080/api/words/${currentWord.id}/check?translation=${encodeURIComponent(translation)}`,
         {
-          method: 'POST',
-          headers: {
-            'Authorization': authHeader
-          }
+          method: 'POST'
         }
       );
 
@@ -179,8 +158,8 @@ const WordLearning = () => {
             <TextField
               fullWidth
               label="Your Translation"
-              value={userTranslation}
-              onChange={(e) => setUserTranslation(e.target.value)}
+              value={translation}
+              onChange={(e) => setTranslation(e.target.value)}
               margin="normal"
               required
             />

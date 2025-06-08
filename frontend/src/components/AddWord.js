@@ -35,17 +35,10 @@ const AddWord = () => {
     try {
       console.log('Sending word data:', word);
       
-      const authHeader = sessionStorage.getItem('authHeader');
-      if (!authHeader) {
-        navigate('/login');
-        return;
-      }
-      
       const response = await fetch('http://localhost:8080/api/words', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': authHeader
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(word),
       });

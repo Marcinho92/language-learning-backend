@@ -14,14 +14,11 @@ import {
   Box,
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
-import api from '../services/api';
-import { useNavigate } from 'react-router-dom';
 
 const WordList = () => {
   const [words, setWords] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchWords();
@@ -29,18 +26,7 @@ const WordList = () => {
 
   const fetchWords = async () => {
     try {
-      const authHeader = sessionStorage.getItem('authHeader');
-      if (!authHeader) {
-        navigate('/login');
-        return;
-      }
-
-      const response = await fetch('http://localhost:8080/api/words', {
-        headers: {
-          'Authorization': authHeader
-        }
-      });
-      
+      const response = await fetch('http://localhost:8080/api/words');
       if (response.ok) {
         const data = await response.json();
         setWords(data);
@@ -55,8 +41,12 @@ const WordList = () => {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/api/words/${id}`);
-      fetchWords();
+      const response = await fetch(`http://localhost:8080/api/words/${id}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        fetchWords();
+      }
     } catch (error) {
       console.error('Error deleting word:', error);
     }

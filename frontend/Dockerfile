@@ -8,8 +8,7 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Copy public and src directories
-COPY public/ public/
+# Copy source directory
 COPY src/ src/
 
 EXPOSE 3000

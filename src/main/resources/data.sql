@@ -1,3 +1,4 @@
+SELECT * FROM words;
 -- Insert sample words
 -- INSERT INTO words (original_word, translation, language, difficulty_level, proficiency_level)
 -- SELECT word.original_word, word.translation, 'english', word.difficulty, 1

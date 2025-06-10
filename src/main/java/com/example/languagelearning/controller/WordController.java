@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -64,5 +65,31 @@ public class WordController {
             @PathVariable Long id,
             @RequestParam String translation) {
         return ResponseEntity.ok(wordService.checkTranslation(id, translation));
+    }
+
+    @GetMapping(value = "/export", produces = "text/csv;charset=UTF-8")
+    public ResponseEntity<byte[]> exportToCsv() {
+        byte[] csvContent = wordService.exportToCsv();
+        return ResponseEntity.ok()
+                .header("Content-Type", "text/csv;charset=UTF-8")
+                .header("Content-Disposition", "attachment; filename=\"vocabulary.csv\"")
+                .body(csvContent);
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<Void> importFromCsv(@RequestParam("file") MultipartFile file) {
+        log.info("Received request to import words from CSV file: {}", file.getOriginalFilename());
+        try {
+            if (!file.getOriginalFilename().toLowerCase().endsWith(".csv")) {
+                throw new IllegalArgumentException("Only CSV files are supported");
+            }
+
+            wordService.importFromCsv(file);
+            log.info("Successfully imported words from CSV file");
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Error importing words from CSV", e);
+            throw e;
+        }
     }
 } 

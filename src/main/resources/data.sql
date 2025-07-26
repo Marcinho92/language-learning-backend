@@ -1,27 +1,27 @@
 SELECT * FROM words;
 -- Insert sample words
--- INSERT INTO words (original_word, translation, language, difficulty_level, proficiency_level)
--- SELECT word.original_word, word.translation, 'english', word.difficulty, 1
+-- INSERT INTO words (original_word, translation, language, proficiency_level)
+-- SELECT word.original_word, word.translation, 'english', 1
 -- FROM (
 --     VALUES 
---     ('jabłko', 'apple', 1),
---     ('książka', 'book', 1),
---     ('kot', 'cat', 1),
---     ('pies', 'dog', 1),
---     ('słoń', 'elephant', 2),
---     ('kwiat', 'flower', 1),
---     ('gitara', 'guitar', 2),
---     ('dom', 'house', 1),
---     ('wyspa', 'island', 2),
---     ('kurtka', 'jacket', 2),
---     ('klawiatura', 'keyboard', 2),
---     ('laptop', 'laptop', 1),
---     ('góra', 'mountain', 2),
---     ('zeszyt', 'notebook', 1),
---     ('pomarańcza', 'orange', 1),
---     ('ołówek', 'pencil', 1),
---     ('królowa', 'queen', 3),
---     ('tęcza', 'rainbow', 2),
---     ('słońce', 'sunshine', 2),
---     ('parasol', 'umbrella', 2)
--- ) AS word(original_word, translation, difficulty);
+--     ('jabłko', 'apple'),
+--     ('książka', 'book'),
+--     ('kot', 'cat'),
+--     ('pies', 'dog'),
+--     ('słoń', 'elephant'),
+--     ('kwiat', 'flower'),
+--     ('gitara', 'guitar'),
+--     ('dom', 'house'),
+--     ('wyspa', 'island'),
+--     ('kurtka', 'jacket'),
+--     ('klawiatura', 'keyboard'),
+--     ('laptop', 'laptop'),
+--     ('góra', 'mountain'),
+--     ('zeszyt', 'notebook'),
+--     ('pomarańcza', 'orange'),
+--     ('ołówek', 'pencil'),
+--     ('królowa', 'queen'),
+--     ('tęcza', 'rainbow'),
+--     ('słońce', 'sunshine'),
+--     ('parasol', 'umbrella')
+-- ) AS word(original_word, translation);

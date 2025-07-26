@@ -21,14 +21,12 @@ const WordLearning = () => {
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({
     language: '',
-    difficultyLevel: '',
   });
 
   const fetchRandomWord = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (filters.language) params.append('language', filters.language);
-      if (filters.difficultyLevel) params.append('difficultyLevel', filters.difficultyLevel);
 
       const response = await fetch(`http://localhost:8080/api/words/random?${params}`);
 
@@ -112,20 +110,7 @@ const WordLearning = () => {
           </Select>
         </FormControl>
 
-        <FormControl sx={{ minWidth: 120 }}>
-          <InputLabel>Difficulty</InputLabel>
-          <Select
-            name="difficultyLevel"
-            value={filters.difficultyLevel}
-            onChange={handleFilterChange}
-            label="Difficulty"
-          >
-            <MenuItem value="">All</MenuItem>
-            <MenuItem value={1}>Easy</MenuItem>
-            <MenuItem value={2}>Medium</MenuItem>
-            <MenuItem value={3}>Hard</MenuItem>
-          </Select>
-        </FormControl>
+
       </Box>
 
       {error && (
@@ -142,12 +127,7 @@ const WordLearning = () => {
           <Typography variant="h4" gutterBottom>
             {currentWord.originalWord}
           </Typography>
-          <Box sx={{ mb: 2 }}>
-            <Typography component="span" sx={{ mr: 1 }}>
-              Difficulty:
-            </Typography>
-            <Rating value={currentWord.difficultyLevel} max={3} readOnly />
-          </Box>
+
           <Box sx={{ mb: 2 }}>
             <Typography component="span" sx={{ mr: 1 }}>
               Current Proficiency:

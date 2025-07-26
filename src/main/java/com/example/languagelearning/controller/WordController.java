@@ -55,9 +55,8 @@ public class WordController {
 
     @GetMapping("/random")
     public ResponseEntity<Word> getRandomWord(
-            @RequestParam(required = false) String language,
-            @RequestParam(required = false) Integer difficultyLevel) {
-        return ResponseEntity.ok(wordService.getRandomWord(language, difficultyLevel));
+            @RequestParam(required = false) String language) {
+        return ResponseEntity.ok(wordService.getRandomWord(language));
     }
 
     @PostMapping("/{id}/check")

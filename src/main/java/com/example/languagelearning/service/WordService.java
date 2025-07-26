@@ -9,7 +9,6 @@ import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +29,7 @@ public class WordService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private static final String[] CSV_HEADERS = {"originalWord", "translation", "language", "difficultyLevel", "proficiencyLevel"};
+    private static final String[] CSV_HEADERS = {"originalWord", "translation", "language", "proficiencyLevel", "exampleUsage", "explanation"};
 
     @Transactional(readOnly = true)
     public byte[] exportToCsv() {
@@ -46,12 +45,13 @@ public class WordService {
 
             // Add data
             for (Word word : words) {
-                csvContent.append(String.format("%s,%s,%s,%d,%d%n",
+                csvContent.append(String.format("%s,%s,%s,%d,%s,%s%n",
                         escapeCsvField(word.getOriginalWord()),
                         escapeCsvField(word.getTranslation()),
                         escapeCsvField(word.getLanguage()),
-                        word.getDifficultyLevel(),
-                        word.getProficiencyLevel()
+                        word.getProficiencyLevel(),
+                        escapeCsvField(word.getExampleUsage()),
+                        escapeCsvField(word.getExplanation())
                 ));
             }
 
@@ -79,22 +79,31 @@ public class WordService {
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
 
             String line = reader.readLine(); // Skip header
-            if (!CSV_HEADERS.equals(line)) {
-                throw new RuntimeException("Invalid CSV format. Expected header: " + CSV_HEADERS);
+            String expectedHeader = String.join(",", CSV_HEADERS);
+            if (!expectedHeader.equals(line)) {
+                throw new RuntimeException("Invalid CSV format. Expected header: " + expectedHeader);
             }
 
             List<Word> wordsToSave = new ArrayList<>();
             while ((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
 
-                String[] data = line.split(",");
-                if (data.length == 5) {
+                String[] data = parseCsvLine(line);
+                if (data.length >= 4) {
                     Word word = new Word();
                     word.setOriginalWord(data[0].trim());
                     word.setTranslation(data[1].trim());
                     word.setLanguage(data[2].trim());
-                    word.setDifficultyLevel(Integer.parseInt(data[3].trim()));
-                    word.setProficiencyLevel(Integer.parseInt(data[4].trim()));
+                    word.setProficiencyLevel(Integer.parseInt(data[3].trim()));
+                    
+                    // Handle optional fields
+                    if (data.length > 4) {
+                        word.setExampleUsage(data[4].trim());
+                    }
+                    if (data.length > 5) {
+                        word.setExplanation(data[5].trim());
+                    }
+                    
                     wordsToSave.add(word);
                 } else {
                     log.warn("Invalid CSV line format: {}", line);
@@ -115,7 +124,6 @@ public class WordService {
         return word.getOriginalWord() != null && !word.getOriginalWord().trim().isEmpty() &&
                 word.getTranslation() != null && !word.getTranslation().trim().isEmpty() &&
                 word.getLanguage() != null && !word.getLanguage().trim().isEmpty() &&
-                word.getDifficultyLevel() != null && word.getDifficultyLevel() >= 1 && word.getDifficultyLevel() <= 3 &&
                 word.getProficiencyLevel() != null && word.getProficiencyLevel() >= 1 && word.getProficiencyLevel() <= 5;
     }
 
@@ -222,8 +230,9 @@ public class WordService {
             Word existingWord = getWord(id);
             existingWord.setOriginalWord(updatedWord.getOriginalWord());
             existingWord.setTranslation(updatedWord.getTranslation());
-            existingWord.setDifficultyLevel(updatedWord.getDifficultyLevel());
             existingWord.setLanguage(updatedWord.getLanguage());
+            existingWord.setExampleUsage(updatedWord.getExampleUsage());
+            existingWord.setExplanation(updatedWord.getExplanation());
             Word savedWord = wordRepository.save(existingWord);
             log.info("Successfully updated word: {}", savedWord);
             return savedWord;
@@ -247,22 +256,18 @@ public class WordService {
     }
 
     @Transactional(readOnly = true)
-    public Word getRandomWord(String language, Integer difficultyLevel) {
-        log.info("Getting random word with language: {} and difficultyLevel: {}", language, difficultyLevel);
+    public Word getRandomWord(String language) {
+        log.info("Getting random word with language: {}", language);
         try {
             List<Word> words;
-            if (language != null && difficultyLevel != null) {
-                words = wordRepository.findByLanguageAndDifficultyLevel(language, difficultyLevel);
-            } else if (language != null) {
+            if (language != null) {
                 words = wordRepository.findByLanguage(language);
-            } else if (difficultyLevel != null) {
-                words = wordRepository.findByDifficultyLevel(difficultyLevel);
             } else {
                 words = wordRepository.findAll();
             }
 
             if (words.isEmpty()) {
-                log.warn("No words found with given criteria: language={}, difficultyLevel={}", language, difficultyLevel);
+                log.warn("No words found with given criteria: language={}", language);
                 throw new EntityNotFoundException("No words found with given criteria");
             }
 

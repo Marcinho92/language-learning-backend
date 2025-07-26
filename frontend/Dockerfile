@@ -2,8 +2,8 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Set Node memory limit
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Set Node memory limit and suppress deprecation warnings
+ENV NODE_OPTIONS="--max-old-space-size=4096 --no-deprecation"
 
 # Copy package files
 COPY package*.json ./

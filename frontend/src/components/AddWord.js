@@ -18,7 +18,8 @@ const AddWord = () => {
     originalWord: '',
     translation: '',
     language: 'english',
-    difficultyLevel: 1,
+    exampleUsage: '',
+    explanation: '',
   });
   const [error, setError] = useState('');
 
@@ -115,19 +116,29 @@ const AddWord = () => {
               <MenuItem value="german">German</MenuItem>
             </Select>
           </FormControl>
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Difficulty Level</InputLabel>
-            <Select
-              name="difficultyLevel"
-              value={word.difficultyLevel}
-              onChange={handleChange}
-              label="Difficulty Level"
-            >
-              <MenuItem value={1}>Easy</MenuItem>
-              <MenuItem value={2}>Medium</MenuItem>
-              <MenuItem value={3}>Hard</MenuItem>
-            </Select>
-          </FormControl>
+
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Example Usage (optional)"
+            name="exampleUsage"
+            value={word.exampleUsage}
+            onChange={handleChange}
+            multiline
+            rows={3}
+            placeholder="Enter an example sentence using this word..."
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Explanation (optional)"
+            name="explanation"
+            value={word.explanation}
+            onChange={handleChange}
+            multiline
+            rows={3}
+            placeholder="Enter a detailed explanation of the word..."
+          />
           <Button
             type="submit"
             variant="contained"

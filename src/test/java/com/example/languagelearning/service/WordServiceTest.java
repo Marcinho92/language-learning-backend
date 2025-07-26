@@ -32,8 +32,9 @@ class WordServiceTest {
         word.setOriginalWord("książka");
         word.setTranslation("book");
         word.setLanguage("polish");
-        word.setDifficultyLevel(1);
         word.setProficiencyLevel(1);
+        word.setExampleUsage("Czytam książkę każdego wieczoru.");
+        word.setExplanation("A book is a written or printed work consisting of pages glued or sewn together along one side.");
 
         doReturn(Collections.singletonList(word)).when(wordService).getAllWords();
 

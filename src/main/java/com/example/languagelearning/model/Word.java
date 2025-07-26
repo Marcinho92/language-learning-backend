@@ -27,14 +27,16 @@ public class Word {
     @Column(nullable = false)
     private String language;
 
-    @NotNull(message = "Difficulty level cannot be null")
-    @Min(value = 1, message = "Difficulty level must be at least 1")
-    @Max(value = 3, message = "Difficulty level must be at most 3")
-    @Column(nullable = false)
-    private Integer difficultyLevel;
+
 
     @Min(value = 1, message = "Proficiency level must be at least 1")
     @Max(value = 5, message = "Proficiency level must be at most 5")
     @Column(nullable = false)
     private Integer proficiencyLevel = 1;
+
+    @Column(columnDefinition = "TEXT")
+    private String exampleUsage;
+
+    @Column(columnDefinition = "TEXT")
+    private String explanation;
 } 

@@ -16,7 +16,8 @@ import {
   Button,
   Stack,
 } from '@mui/material';
-import { Delete, FileUpload, FileDownload } from '@mui/icons-material';
+import { Delete, FileUpload, FileDownload, Edit } from '@mui/icons-material';
+import EditWord from './EditWord';
 
 const WordList = () => {
   const [words, setWords] = useState([]);
@@ -24,6 +25,8 @@ const WordList = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [orderBy, setOrderBy] = useState('originalWord');
   const [order, setOrder] = useState('asc');
+  const [editingWord, setEditingWord] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const fetchWords = useCallback(async () => {
     try {
@@ -81,6 +84,24 @@ const WordList = () => {
     }
   }, [fetchWords]);
 
+  const handleEdit = useCallback((word) => {
+    setEditingWord(word);
+    setEditDialogOpen(true);
+  }, []);
+
+  const handleEditClose = useCallback(() => {
+    setEditDialogOpen(false);
+    setEditingWord(null);
+  }, []);
+
+  const handleEditSave = useCallback((updatedWord) => {
+    setWords(prevWords => 
+      prevWords.map(word => 
+        word.id === updatedWord.id ? updatedWord : word
+      )
+    );
+  }, []);
+
   const handleChangePage = useCallback((event, newPage) => {
     setPage(newPage);
   }, []);
@@ -107,12 +128,15 @@ const WordList = () => {
     </TableCell>
   ));
 
-  const WordTableRow = React.memo(({ word, onDelete }) => (
-    <TableRow>
+  const WordTableRow = React.memo(({ word, onDelete, onEdit }) => (
+    <TableRow 
+      hover 
+      onClick={() => onEdit(word)}
+      sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}
+    >
       <TableCell>{word.originalWord}</TableCell>
       <TableCell>{word.translation}</TableCell>
       <TableCell>{word.language}</TableCell>
-      <TableCell>{word.difficultyLevel}</TableCell>
       <TableCell>
         <Rating
           value={word.proficiencyLevel}
@@ -121,9 +145,39 @@ const WordList = () => {
         />
       </TableCell>
       <TableCell>
+        {word.exampleUsage ? (
+          <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {word.exampleUsage}
+          </Typography>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No example
+          </Typography>
+        )}
+      </TableCell>
+      <TableCell>
+        {word.explanation ? (
+          <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {word.explanation}
+          </Typography>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No explanation
+          </Typography>
+        )}
+      </TableCell>
+      <TableCell onClick={(e) => e.stopPropagation()}>
+        <IconButton
+          color="primary"
+          onClick={() => onEdit(word)}
+          size="small"
+        >
+          <Edit />
+        </IconButton>
         <IconButton
           color="error"
           onClick={() => onDelete(word.id)}
+          size="small"
         >
           <Delete />
         </IconButton>
@@ -245,8 +299,9 @@ const WordList = () => {
               <SortableTableCell id="originalWord" label="Original Word" />
               <TableCell>Translation</TableCell>
               <TableCell>Language</TableCell>
-              <SortableTableCell id="difficultyLevel" label="Difficulty Level" />
               <SortableTableCell id="proficiencyLevel" label="Proficiency" />
+              <TableCell>Example Usage</TableCell>
+              <TableCell>Explanation</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -256,6 +311,7 @@ const WordList = () => {
                 key={word.id} 
                 word={word} 
                 onDelete={handleDelete}
+                onEdit={handleEdit}
               />
             ))}
           </TableBody>
@@ -270,6 +326,13 @@ const WordList = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </TableContainer>
+      
+      <EditWord
+        word={editingWord}
+        open={editDialogOpen}
+        onClose={handleEditClose}
+        onSave={handleEditSave}
+      />
     </Box>
   );
 };

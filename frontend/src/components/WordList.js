@@ -15,8 +15,13 @@ import {
   TableSortLabel,
   Button,
   Stack,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
-import { Delete, FileUpload, FileDownload, Edit } from '@mui/icons-material';
+import { Delete, FileUpload, FileDownload, Edit, Search } from '@mui/icons-material';
 import EditWord from './EditWord';
 
 const WordList = () => {
@@ -27,10 +32,13 @@ const WordList = () => {
   const [order, setOrder] = useState('asc');
   const [editingWord, setEditingWord] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchField, setSearchField] = useState('originalWord');
 
   const fetchWords = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/words');
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://language-learning-backend-production.up.railway.app';
+      const response = await fetch(`${apiUrl}/api/words`);
       if (response.ok) {
         const data = await response.json();
         setWords(data);
@@ -55,6 +63,16 @@ const WordList = () => {
   }, [order, orderBy]);
 
   const sortedWords = useMemo(() => {
+    // First filter by search term
+    let filteredWords = words;
+    if (searchTerm.trim()) {
+      filteredWords = words.filter(word => {
+        const fieldValue = word[searchField] || '';
+        return fieldValue.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+    }
+
+    // Then sort the filtered words
     const comparator = (a, b) => {
       let valueA = a[orderBy];
       let valueB = b[orderBy];
@@ -68,12 +86,13 @@ const WordList = () => {
       return 0;
     };
 
-    return [...words].sort(comparator);
-  }, [words, order, orderBy]);
+    return [...filteredWords].sort(comparator);
+  }, [words, order, orderBy, searchTerm, searchField]);
 
   const handleDelete = useCallback(async (id) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/words/${id}`, {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiUrl}/api/words/${id}`, {
         method: 'DELETE'
       });
       if (response.ok) {
@@ -111,9 +130,24 @@ const WordList = () => {
     setPage(0);
   }, []);
 
+  const handleSearchChange = useCallback((event) => {
+    setSearchTerm(event.target.value);
+    setPage(0); // Reset to first page when searching
+  }, []);
+
+  const handleSearchFieldChange = useCallback((event) => {
+    setSearchField(event.target.value);
+    setPage(0); // Reset to first page when changing search field
+  }, []);
+
   const displayedWords = useMemo(() => {
     return sortedWords.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [sortedWords, page, rowsPerPage]);
+
+  // Reset to first page when search results change
+  useEffect(() => {
+    setPage(0);
+  }, [searchTerm, searchField]);
 
   const SortableTableCell = React.memo(({ id, label }) => (
     <TableCell>
@@ -187,7 +221,8 @@ const WordList = () => {
 
   const handleExport = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/words/export', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiUrl}/api/words/export`, {
         method: 'GET',
         headers: {
           'Accept': 'text/csv;charset=utf-8'
@@ -245,7 +280,8 @@ const WordList = () => {
       const formData = new FormData();
       formData.append('file', blob, file.name);
 
-      const response = await fetch('http://localhost:8080/api/words/import', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiUrl}/api/words/import`, {
         method: 'POST',
         body: formData,
       });
@@ -292,13 +328,46 @@ const WordList = () => {
         </Button>
       </Stack>
 
+      {/* Search Section */}
+      <Paper sx={{ p: 2, mb: 2 }}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <TextField
+            label="Search words"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            placeholder="Enter search term..."
+            size="small"
+            sx={{ minWidth: 200 }}
+            InputProps={{
+              startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />,
+            }}
+          />
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>Search by</InputLabel>
+            <Select
+              value={searchField}
+              onChange={handleSearchFieldChange}
+              label="Search by"
+            >
+              <MenuItem value="originalWord">Original Word</MenuItem>
+              <MenuItem value="translation">Translation</MenuItem>
+            </Select>
+          </FormControl>
+          {searchTerm && (
+            <Typography variant="body2" color="text.secondary">
+              Found {sortedWords.length} result{sortedWords.length !== 1 ? 's' : ''}
+            </Typography>
+          )}
+        </Stack>
+      </Paper>
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
               <SortableTableCell id="originalWord" label="Original Word" />
-              <TableCell>Translation</TableCell>
-              <TableCell>Language</TableCell>
+              <SortableTableCell id="translation" label="Translation" />
+              <SortableTableCell id="language" label="Language" />
               <SortableTableCell id="proficiencyLevel" label="Proficiency" />
               <TableCell>Example Usage</TableCell>
               <TableCell>Explanation</TableCell>
@@ -319,7 +388,7 @@ const WordList = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={words.length}
+          count={sortedWords.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

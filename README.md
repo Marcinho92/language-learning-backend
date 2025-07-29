@@ -1,42 +1,72 @@
 # Language Learning Application
 
-A web application for learning and managing vocabulary words with PostgreSQL database.
+Aplikacja do nauki języków obcych z zarządzaniem słownictwem, napisana w Spring Boot (backend) i React (frontend).
 
-## Features
+## Funkcjonalności
 
-- Add, view, and delete vocabulary words
-- Support for multiple languages (English, Polish, Spanish, German)
-- Proficiency tracking (1-5 scale)
-- **New**: Optional example usage sentences
-- **New**: Optional detailed explanations
-- Export/Import functionality via CSV
-- Modern React frontend with Material-UI
+- 📚 Zarządzanie słownictwem (dodawanie, edycja, usuwanie)
+- 🎯 Nauka słów z systemem poziomów zaawansowania
+- 🔍 Wyszukiwanie słów po oryginalnym słowie lub tłumaczeniu
+- 📊 Sortowanie po różnych kolumnach
+- 📥 Import/Export danych w formacie CSV
+- 💡 Przykłady użycia i wyjaśnienia dla słów
 
-## Word Model
+## Technologie
 
-Each word includes:
-- **Original Word** (required): The word in its original language
-- **Translation** (required): The translation of the word
-- **Language** (required): The language of the word
-- **Proficiency Level** (required): 1-5 scale indicating learning progress
-- **Example Usage** (optional): Example sentence showing how to use the word
-- **Explanation** (optional): Detailed explanation of the word's meaning and usage
+### Backend
+- **Spring Boot 3.x** - framework Java
+- **PostgreSQL** - baza danych
+- **JPA/Hibernate** - ORM
+- **Maven** - zarządzanie zależnościami
 
-## Database Migration
+### Frontend
+- **React 18** - biblioteka JavaScript
+- **Material-UI** - komponenty UI
+- **Axios** - komunikacja z API
 
-If you're updating from a previous version, the new columns will be automatically added by Hibernate. Alternatively, you can run the manual migration script:
+## Szybki Start
 
-```sql
--- Run the migration script in src/main/resources/migration_add_example_usage_explanation.sql
+### Lokalne uruchomienie
+
+1. **Klonowanie repozytorium**
+```bash
+git clone https://github.com/yourusername/docker-postgres.git
+cd docker-postgres
 ```
 
-## Running the Application
+2. **Uruchomienie z Docker Compose**
+```bash
+docker-compose up --build
+```
 
-1. Start the application using Docker Compose:
-   ```bash
-   docker-compose up
-   ```
+3. **Dostęp do aplikacji**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080
+- PgAdmin: http://localhost:5050
 
-2. Access the application at `http://localhost:3000`
+### Deploy na Railway
 
-3. The backend API is available at `http://localhost:8080`
+Szczegółowe instrukcje deployu znajdują się w pliku [DEPLOY_INSTRUCTIONS.md](DEPLOY_INSTRUCTIONS.md).
+
+#### Szybki deploy:
+
+**Backend:**
+```bash
+npm install -g @railway/cli
+railway login
+railway init
+railway up
+```
+
+**Frontend:**
+```bash
+cd frontend
+railway init
+railway variables --set "REACT_APP_API_URL=https://language-learning-backend-production.up.railway.app"
+railway up
+```
+
+## Struktura Projektu
+
+```
+```

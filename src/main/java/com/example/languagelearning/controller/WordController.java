@@ -1,5 +1,6 @@
 package com.example.languagelearning.controller;
 
+import com.example.languagelearning.dto.TranslationCheckResponse;
 import com.example.languagelearning.model.Word;
 import com.example.languagelearning.service.WordService;
 import jakarta.validation.Valid;
@@ -15,7 +16,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/words")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {
+    "http://localhost:3000", 
+    "https://language-learning-frontend.railway.app",
+    "https://language-learning-frontend-production.up.railway.app"
+})
 public class WordController {
     private final WordService wordService;
 
@@ -60,7 +65,7 @@ public class WordController {
     }
 
     @PostMapping("/{id}/check")
-    public ResponseEntity<Boolean> checkTranslation(
+    public ResponseEntity<TranslationCheckResponse> checkTranslation(
             @PathVariable Long id,
             @RequestParam String translation) {
         return ResponseEntity.ok(wordService.checkTranslation(id, translation));

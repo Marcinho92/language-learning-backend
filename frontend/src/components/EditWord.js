@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TextField,
   Button,
-  Container,
   Typography,
   Box,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 
-const AddWord = () => {
-  const navigate = useNavigate();
-  const [word, setWord] = useState({
+const EditWord = ({ word, open, onClose, onSave }) => {
+  const [editedWord, setEditedWord] = useState({
     originalWord: '',
     translation: '',
     language: 'english',
@@ -23,9 +24,21 @@ const AddWord = () => {
   });
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (word) {
+              setEditedWord({
+          originalWord: word.originalWord || '',
+          translation: word.translation || '',
+          language: word.language || 'english',
+          exampleUsage: word.exampleUsage || '',
+          explanation: word.explanation || '',
+        });
+    }
+  }, [word]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setWord((prev) => ({
+    setEditedWord((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -35,8 +48,8 @@ const AddWord = () => {
     e.preventDefault();
     try {
       const apiUrl = process.env.REACT_APP_API_URL || 'https://language-learning-backend-production.up.railway.app';
-      const response = await fetch(`${apiUrl}/api/words`, {
-        method: 'POST',
+      const response = await fetch(`${apiUrl}/api/words/${word.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -45,7 +58,9 @@ const AddWord = () => {
 
       const contentType = response.headers.get('content-type');
       if (response.ok) {
-        navigate('/words');
+        const updatedWord = await response.json();
+        onSave(updatedWord);
+        onClose();
       } else {
         let errorMessage;
         if (contentType && contentType.includes('application/json')) {
@@ -60,35 +75,38 @@ const AddWord = () => {
           statusText: response.statusText,
           error: errorMessage
         });
-        setError(errorMessage || `Failed to add word (Status: ${response.status})`);
+        setError(errorMessage || `Failed to update word (Status: ${response.status})`);
       }
     } catch (err) {
       console.error('Error details:', {
         message: err.message,
         stack: err.stack
       });
-      setError(`An error occurred while adding the word: ${err.message}`);
+      setError(`An error occurred while updating the word: ${err.message}`);
     }
   };
 
+  const handleClose = () => {
+    setError('');
+    onClose();
+  };
+
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Add New Word
-        </Typography>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Edit Word</DialogTitle>
+      <DialogContent>
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
             {error}
           </Typography>
         )}
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
           <TextField
             fullWidth
             margin="normal"
             label="Original Word"
             name="originalWord"
-            value={word.originalWord}
+            value={editedWord.originalWord}
             onChange={handleChange}
             required
           />
@@ -97,7 +115,7 @@ const AddWord = () => {
             margin="normal"
             label="Translation"
             name="translation"
-            value={word.translation}
+            value={editedWord.translation}
             onChange={handleChange}
             required
           />
@@ -105,7 +123,7 @@ const AddWord = () => {
             <InputLabel>Language</InputLabel>
             <Select
               name="language"
-              value={word.language}
+              value={editedWord.language}
               onChange={handleChange}
               label="Language"
             >
@@ -121,7 +139,7 @@ const AddWord = () => {
             margin="normal"
             label="Example Usage (optional)"
             name="exampleUsage"
-            value={word.exampleUsage}
+            value={editedWord.exampleUsage}
             onChange={handleChange}
             multiline
             rows={3}
@@ -132,25 +150,22 @@ const AddWord = () => {
             margin="normal"
             label="Explanation (optional)"
             name="explanation"
-            value={word.explanation}
+            value={editedWord.explanation}
             onChange={handleChange}
             multiline
             rows={3}
             placeholder="Enter a detailed explanation of the word..."
           />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            sx={{ mt: 3 }}
-          >
-            Add Word
-          </Button>
         </Box>
-      </Box>
-    </Container>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleSubmit} variant="contained" color="primary">
+          Save Changes
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 
-export default AddWord; 
+export default EditWord; 

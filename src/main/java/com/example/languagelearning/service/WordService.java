@@ -1,5 +1,6 @@
 package com.example.languagelearning.service;
 
+import com.example.languagelearning.dto.TranslationCheckResponse;
 import com.example.languagelearning.model.Word;
 import com.example.languagelearning.repository.WordRepository;
 import jakarta.persistence.EntityManager;
@@ -291,7 +292,7 @@ public class WordService {
     }
 
     @Transactional
-    public boolean checkTranslation(Long id, String translation) {
+    public TranslationCheckResponse checkTranslation(Long id, String translation) {
         log.info("Checking translation for word id: {} with translation: {}", id, translation);
         try {
             Word word = getWord(id);
@@ -309,7 +310,15 @@ public class WordService {
 
             wordRepository.save(word);
             log.info("Translation check result: {}", isCorrect);
-            return isCorrect;
+            
+            TranslationCheckResponse response = new TranslationCheckResponse();
+            response.setCorrect(isCorrect);
+            response.setCorrectTranslation(word.getTranslation());
+            response.setExampleUsage(word.getExampleUsage());
+            response.setExplanation(word.getExplanation());
+            response.setMessage(isCorrect ? "Correct!" : "Incorrect. The correct answer is: " + word.getTranslation());
+            
+            return response;
         } catch (Exception e) {
             log.error("Error checking translation for word id: {}", id, e);
             throw e;

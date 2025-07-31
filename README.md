@@ -1,6 +1,6 @@
-# Language Learning Application
+# Language Learning Backend
 
-Aplikacja do nauki języków obcych z zarządzaniem słownictwem, napisana w Spring Boot (backend) i React (frontend).
+Backend aplikacji do nauki języków obcych, napisany w Spring Boot z bazą danych PostgreSQL.
 
 ## Funkcjonalności
 
@@ -13,16 +13,10 @@ Aplikacja do nauki języków obcych z zarządzaniem słownictwem, napisana w Spr
 
 ## Technologie
 
-### Backend
 - **Spring Boot 3.x** - framework Java
 - **PostgreSQL** - baza danych
 - **JPA/Hibernate** - ORM
 - **Maven** - zarządzanie zależnościami
-
-### Frontend
-- **React 18** - biblioteka JavaScript
-- **Material-UI** - komponenty UI
-- **Axios** - komunikacja z API
 
 ## Szybki Start
 
@@ -30,8 +24,8 @@ Aplikacja do nauki języków obcych z zarządzaniem słownictwem, napisana w Spr
 
 1. **Klonowanie repozytorium**
 ```bash
-git clone https://github.com/yourusername/docker-postgres.git
-cd docker-postgres
+git clone https://github.com/yourusername/language-learning-backend.git
+cd language-learning-backend
 ```
 
 2. **Uruchomienie z Docker Compose**
@@ -40,7 +34,6 @@ docker-compose up --build
 ```
 
 3. **Dostęp do aplikacji**
-- Frontend: http://localhost:3000
 - Backend API: http://localhost:8080
 - PgAdmin: http://localhost:5050
 
@@ -49,8 +42,6 @@ docker-compose up --build
 Szczegółowe instrukcje deployu znajdują się w pliku [DEPLOY_INSTRUCTIONS.md](DEPLOY_INSTRUCTIONS.md).
 
 #### Szybki deploy:
-
-**Backend:**
 ```bash
 npm install -g @railway/cli
 railway login
@@ -58,15 +49,36 @@ railway init
 railway up
 ```
 
-**Frontend:**
-```bash
-cd frontend
-railway init
-railway variables --set "REACT_APP_API_URL=https://language-learning-backend-production.up.railway.app"
-railway up
-```
-
 ## Struktura Projektu
 
 ```
+src/
+├── main/
+│   ├── java/com/example/languagelearning/
+│   │   ├── controller/     # Kontrolery REST API
+│   │   ├── service/        # Logika biznesowa
+│   │   ├── repository/     # Repozytoria danych
+│   │   ├── model/          # Encje JPA
+│   │   └── dto/           # Obiekty transferu danych
+│   └── resources/
+│       ├── application.yml # Konfiguracja aplikacji
+│       └── data.sql       # Dane początkowe
+└── test/                  # Testy jednostkowe
 ```
+
+## API Endpoints
+
+- `GET /api/words` - Pobieranie listy słów
+- `GET /api/words/random` - Pobieranie losowego słowa
+- `POST /api/words` - Dodawanie nowego słowa
+- `PUT /api/words/{id}` - Aktualizacja słowa
+- `DELETE /api/words/{id}` - Usuwanie słowa
+- `POST /api/words/{id}/check` - Sprawdzanie tłumaczenia
+
+## Frontend
+
+Frontend aplikacji został przeniesiony do osobnego repozytorium: [language-learning-frontend](https://github.com/yourusername/language-learning-frontend)
+
+## Licencja
+
+MIT

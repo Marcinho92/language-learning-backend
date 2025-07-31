@@ -12,20 +12,6 @@ services:
     networks:
       - language-learning-network
 
-  frontend:
-    build: 
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    depends_on:
-      - app
-    networks:
-      - language-learning-network
-
   postgres:
     image: postgres:16-alpine
     ports:

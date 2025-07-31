@@ -269,7 +269,7 @@ public class WordService {
 
             if (words.isEmpty()) {
                 log.warn("No words found with given criteria: language={}", language);
-                throw new EntityNotFoundException("No words found with given criteria");
+                return null; // Return null instead of throwing exception
             }
 
             log.info("Found {} words matching criteria", words.size());

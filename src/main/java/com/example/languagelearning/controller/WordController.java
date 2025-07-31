@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -59,9 +60,16 @@ public class WordController {
     }
 
     @GetMapping("/random")
-    public ResponseEntity<Word> getRandomWord(
+    public ResponseEntity<Object> getRandomWord(
             @RequestParam(required = false) String language) {
-        return ResponseEntity.ok(wordService.getRandomWord(language));
+        Word randomWord = wordService.getRandomWord(language);
+        if (randomWord == null) {
+            return ResponseEntity.ok(Map.of(
+                "message", "Baza słów jest pusta. Dodaj słowa, aby rozpocząć naukę.",
+                "isEmpty", true
+            ));
+        }
+        return ResponseEntity.ok(randomWord);
     }
 
     @PostMapping("/{id}/check")

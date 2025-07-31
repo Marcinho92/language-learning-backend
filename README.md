@@ -24,7 +24,7 @@ Backend aplikacji do nauki języków obcych, napisany w Spring Boot z bazą dany
 
 1. **Klonowanie repozytorium**
 ```bash
-git clone https://github.com/yourusername/language-learning-backend.git
+git clone https://github.com/Marcinho92/language-learning-backend.git
 cd language-learning-backend
 ```
 
@@ -77,7 +77,7 @@ src/
 
 ## Frontend
 
-Frontend aplikacji został przeniesiony do osobnego repozytorium: [language-learning-frontend](https://github.com/yourusername/language-learning-frontend)
+Frontend aplikacji został przeniesiony do osobnego repozytorium: [language-learning-frontend](https://github.com/Marcinho92/language-learning-frontend)
 
 ## Licencja
 

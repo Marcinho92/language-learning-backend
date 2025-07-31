@@ -62,30 +62,26 @@ git push
 railway logs
 ```
 
-## 3. Przygotowanie Frontendu
+## 3. Konfiguracja bazy danych
 
-### Tworzenie projektu frontend
+### Sprawdzenie zmiennych bazy danych
 ```bash
-# W katalogu frontend
-cd frontend
-railway init
+# Przejdź do serwisu PostgreSQL
+railway service Postgres
+
+# Sprawdź zmienne
+railway variables
 ```
 
-### Konfiguracja zmiennych środowiskowych
+### Dodanie zmiennych do serwisu aplikacji
 ```bash
-# Ustaw URL API backendu
-railway variables --set "REACT_APP_API_URL=https://language-learning-backend-production.up.railway.app"
-```
+# Przejdź do serwisu aplikacji
+railway service language-learning-backend
 
-### Deploy frontendu
-```bash
-# Deploy do Railway
-railway up
-
-# Lub przez Git
-git add .
-git commit -m "Deploy frontend to Railway"
-git push
+# Dodaj zmienne bazy danych
+railway variables --set "DATABASE_URL=jdbc:postgresql://postgres.railway.internal:5432/railway"
+railway variables --set "DB_USERNAME=postgres"
+railway variables --set "DB_PASSWORD=your_password_here"
 ```
 
 ## 4. Sprawdzenie działania
@@ -95,78 +91,46 @@ git push
 railway open
 ```
 
-### Frontend
+### Sprawdzenie API
 ```bash
-cd frontend
-railway open
+# Test endpointu
+curl https://language-learning-backend-production.up.railway.app/api/words
 ```
 
 ## 5. Troubleshooting
 
-### Sprawdzenie logów
+### Problem z połączeniem do bazy danych
 ```bash
+# Sprawdź logi
 railway logs
-```
 
-### Sprawdzenie zmiennych środowiskowych
-```bash
+# Sprawdź zmienne środowiskowe
 railway variables
 ```
 
-### Restart aplikacji
+### Problem z deployem
 ```bash
-railway service restart
-```
-
-## 6. Aktualizacje
-
-### Backend
-```bash
-git add .
-git commit -m "Update backend"
-railway up
-```
-
-### Frontend
-```bash
-cd frontend
-git add .
-git commit -m "Update frontend"
-railway up
-```
-
-## 7. Backup bazy danych
-
-```bash
-# Railway automatycznie tworzy backupy
-# Możesz je pobrać z Railway Dashboard
-```
-
-## 8. Monitoring
-
-```bash
-# Sprawdzenie statusu
-railway status
-
-# Sprawdzenie użycia zasobów
+# Sprawdź status serwisów
 railway service
+
+# Redeploy
+railway up
 ```
 
-## 9. Domeny
+## 6. Frontend
 
-Railway automatycznie przypisuje domeny:
+Frontend aplikacji został przeniesiony do osobnego repozytorium: [language-learning-frontend](https://github.com/Marcinho92/language-learning-frontend)
+
+### Deploy frontendu
+```bash
+# W repozytorium frontendu
+railway init
+railway variables --set "REACT_APP_API_URL=https://language-learning-backend-production.up.railway.app"
+railway up
+```
+
+## 7. Finalne URL-e
+
+Po udanym deployu:
 - Backend: `https://language-learning-backend-production.up.railway.app`
 - Frontend: `https://language-learning-frontend-production.up.railway.app`
-
-Możesz dodać własną domenę w Railway Dashboard.
-
-## 10. Zalety Railway vs Heroku
-
-✅ **Darmowy tier** - 500 godzin/miesiąc  
-✅ **Automatyczne deployy** z Git  
-✅ **Wbudowana baza PostgreSQL**  
-✅ **Lepsze wsparcie Docker**  
-✅ **Szybsze deployy**  
-✅ **Prostsza konfiguracja**  
-✅ **Automatyczne SSL**  
-✅ **Monitoring wbudowany**

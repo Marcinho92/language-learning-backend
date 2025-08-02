@@ -345,4 +345,18 @@ public class WordService {
             throw e;
         }
     }
+
+    @Transactional
+    public int bulkDelete(List<Long> wordIds) {
+        log.info("Starting bulk delete of {} words", wordIds.size());
+        try {
+            // Delete all words in a single transaction
+            int deletedCount = wordRepository.deleteByIdIn(wordIds);
+            log.info("Successfully bulk deleted {} words", deletedCount);
+            return deletedCount;
+        } catch (Exception e) {
+            log.error("Error bulk deleting words", e);
+            throw e;
+        }
+    }
 } 

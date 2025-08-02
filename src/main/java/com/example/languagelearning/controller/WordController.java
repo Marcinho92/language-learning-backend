@@ -122,4 +122,20 @@ public class WordController {
             throw e;
         }
     }
+
+    @DeleteMapping("/bulk")
+    public ResponseEntity<Map<String, Object>> bulkDelete(@RequestBody List<Long> wordIds) {
+        log.info("Received request to bulk delete {} words", wordIds.size());
+        try {
+            int deletedCount = wordService.bulkDelete(wordIds);
+            log.info("Successfully bulk deleted {} words", deletedCount);
+            return ResponseEntity.ok(Map.of(
+                "message", "Successfully deleted " + deletedCount + " words",
+                "deletedCount", deletedCount
+            ));
+        } catch (Exception e) {
+            log.error("Error bulk deleting words", e);
+            throw e;
+        }
+    }
 } 

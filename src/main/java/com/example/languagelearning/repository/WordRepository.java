@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface WordRepository extends JpaRepository<Word, Long> {
     List<Word> findByLanguage(String language);
     Optional<Word> findByOriginalWord(String originalWord);
+    int deleteByIdIn(List<Long> ids);
 } 

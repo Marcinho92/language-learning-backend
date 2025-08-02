@@ -75,7 +75,8 @@ public class WordController {
     @PostMapping("/{id}/check")
     public ResponseEntity<TranslationCheckResponse> checkTranslation(
             @PathVariable Long id,
-            @RequestParam String translation) {
+            @RequestBody Map<String, String> request) {
+        String translation = request.get("translation");
         return ResponseEntity.ok(wordService.checkTranslation(id, translation));
     }
 

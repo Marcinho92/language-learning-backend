@@ -13,6 +13,9 @@ npm install -g @railway/cli
 
 # Lub przez curl (Linux/macOS)
 curl -fsSL https://railway.app/install.sh | sh
+
+# Lub przez winget (Windows)
+winget install Railway.Railway
 ```
 
 ## 2. Przygotowanie Backendu
@@ -78,8 +81,7 @@ railway variables
 # Przejdź do serwisu aplikacji
 railway service language-learning-backend
 
-# Dodaj zmienne bazy danych
-railway variables --set "DATABASE_URL=jdbc:postgresql://postgres.railway.internal:5432/railway"
+# Railway automatycznie dodaje DATABASE_URL, ale możesz dodać dodatkowe zmienne:
 railway variables --set "DB_USERNAME=postgres"
 railway variables --set "DB_PASSWORD=your_password_here"
 ```
@@ -106,6 +108,9 @@ railway logs
 
 # Sprawdź zmienne środowiskowe
 railway variables
+
+# Upewnij się, że DATABASE_URL jest poprawnie ustawiona
+# Format: postgresql://username:password@host:port/database
 ```
 
 ### Problem z deployem
@@ -115,6 +120,15 @@ railway service
 
 # Redeploy
 railway up
+
+# Sprawdź build logs
+railway logs --service language-learning-backend
+```
+
+### Problem z pamięcią
+```bash
+# Dodaj zmienną dla zwiększenia pamięci JVM
+railway variables --set "JAVA_OPTS=-Xmx512m -Xms256m"
 ```
 
 ## 6. Frontend
@@ -129,8 +143,41 @@ railway variables --set "REACT_APP_API_URL=https://language-learning-backend-pro
 railway up
 ```
 
-## 7. Finalne URL-e
+## 7. Ważne uwagi
+
+### Konfiguracja bazy danych
+- Railway automatycznie tworzy zmienną `DATABASE_URL` dla serwisu PostgreSQL
+- Nie musisz ręcznie ustawiać `DATABASE_URL` - Railway to robi automatycznie
+- Upewnij się, że profil `railway` jest aktywny (`SPRING_PROFILES_ACTIVE=railway`)
+
+### Port i healthcheck
+- Aplikacja nasłuchuje na porcie określonym przez zmienną `PORT` (domyślnie 8080)
+- Healthcheck jest skonfigurowany na `/api/words` w `railway.json`
+- Upewnij się, że endpoint `/api/words` jest dostępny
+
+### Migracje bazy danych
+- Aplikacja używa `hibernate.ddl-auto: validate` w profilu railway
+- Upewnij się, że struktura bazy danych jest zgodna z modelami JPA
+- Jeśli potrzebujesz resetować bazę danych, zmień na `create` tymczasowo
+
+## 8. Finalne URL-e
 
 Po udanym deployu:
 - Backend: `https://language-learning-backend-production.up.railway.app`
 - Frontend: `https://language-learning-frontend-production.up.railway.app`
+
+## 9. Dodatkowe komendy
+
+```bash
+# Sprawdź status wszystkich serwisów
+railway status
+
+# Sprawdź szczegóły serwisu
+railway service language-learning-backend
+
+# Sprawdź zmienne dla konkretnego serwisu
+railway variables --service language-learning-backend
+
+# Redeploy konkretnego serwisu
+railway up --service language-learning-backend
+```

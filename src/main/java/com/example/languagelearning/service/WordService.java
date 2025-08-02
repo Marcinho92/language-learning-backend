@@ -324,4 +324,25 @@ public class WordService {
             throw e;
         }
     }
+
+    @Transactional
+    public List<Word> bulkImport(List<Word> words) {
+        log.info("Starting bulk import of {} words", words.size());
+        try {
+            // Validate all words before saving
+            for (Word word : words) {
+                if (!validateWord(word)) {
+                    throw new IllegalArgumentException("Invalid word data: " + word.getOriginalWord());
+                }
+            }
+
+            // Save all words in a single transaction
+            List<Word> savedWords = wordRepository.saveAll(words);
+            log.info("Successfully bulk imported {} words", savedWords.size());
+            return savedWords;
+        } catch (Exception e) {
+            log.error("Error bulk importing words", e);
+            throw e;
+        }
+    }
 } 

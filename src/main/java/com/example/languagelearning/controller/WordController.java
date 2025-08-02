@@ -105,4 +105,21 @@ public class WordController {
             throw e;
         }
     }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<Map<String, Object>> bulkImport(@RequestBody List<Word> words) {
+        log.info("Received request to bulk import {} words", words.size());
+        try {
+            List<Word> importedWords = wordService.bulkImport(words);
+            log.info("Successfully bulk imported {} words", importedWords.size());
+            return ResponseEntity.ok(Map.of(
+                "message", "Successfully imported " + importedWords.size() + " words",
+                "importedCount", importedWords.size(),
+                "words", importedWords
+            ));
+        } catch (Exception e) {
+            log.error("Error bulk importing words", e);
+            throw e;
+        }
+    }
 } 

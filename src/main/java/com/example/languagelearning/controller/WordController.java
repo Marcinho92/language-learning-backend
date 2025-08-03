@@ -1,5 +1,6 @@
 package com.example.languagelearning.controller;
 
+import com.example.languagelearning.dto.GrammarPracticeResponse;
 import com.example.languagelearning.dto.TranslationCheckResponse;
 import com.example.languagelearning.model.Word;
 import com.example.languagelearning.service.WordService;
@@ -137,6 +138,39 @@ public class WordController {
             ));
         } catch (Exception e) {
             log.error("Error bulk deleting words", e);
+            throw e;
+        }
+    }
+
+    // Grammar Practice Endpoints
+    @GetMapping("/grammar-practice")
+    public ResponseEntity<GrammarPracticeResponse> getRandomGrammarPractice() {
+        log.info("Received request for random grammar practice");
+        try {
+            GrammarPracticeResponse response = wordService.getRandomGrammarPractice();
+            log.info("Successfully generated grammar practice with word: {} and topic: {}", 
+                    response.getWord().getOriginalWord(), response.getGrammarTopic());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error generating grammar practice", e);
+            throw e;
+        }
+    }
+
+    @PostMapping("/grammar-practice/validate")
+    public ResponseEntity<GrammarPracticeResponse> validateGrammarPractice(
+            @RequestBody Map<String, Object> request) {
+        log.info("Received request to validate grammar practice");
+        try {
+            Long wordId = Long.valueOf(request.get("wordId").toString());
+            String userSentence = (String) request.get("userSentence");
+            String grammarTopic = (String) request.get("grammarTopic");
+            
+            GrammarPracticeResponse response = wordService.validateGrammarPractice(wordId, userSentence, grammarTopic);
+            log.info("Successfully validated grammar practice. Result: {}", response.isCorrect());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error validating grammar practice", e);
             throw e;
         }
     }

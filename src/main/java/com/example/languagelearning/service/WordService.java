@@ -1,5 +1,6 @@
 package com.example.languagelearning.service;
 
+import com.example.languagelearning.dto.GrammarPracticeResponse;
 import com.example.languagelearning.dto.TranslationCheckResponse;
 import com.example.languagelearning.model.Word;
 import com.example.languagelearning.repository.WordRepository;
@@ -358,6 +359,108 @@ public class WordService {
         } catch (Exception e) {
             log.error("Error bulk deleting words", e);
             throw e;
+        }
+    }
+
+    // Grammar Practice Methods
+    private static final String[] GRAMMAR_TOPICS = {
+        "Present Simple", "Present Continuous", "Past Simple", "Past Continuous",
+        "Present Perfect", "Past Perfect", "Future Simple", "First Conditional",
+        "Second Conditional", "Third Conditional", "Passive Voice", "Reported Speech",
+        "Modal Verbs", "Gerunds and Infinitives", "Relative Clauses"
+    };
+
+    @Transactional(readOnly = true)
+    public GrammarPracticeResponse getRandomGrammarPractice() {
+        log.info("Getting random grammar practice");
+        
+        // Get random word
+        Word randomWord = getRandomWord(null);
+        if (randomWord == null) {
+            throw new RuntimeException("No words available for grammar practice");
+        }
+        
+        // Get random grammar topic
+        String grammarTopic = GRAMMAR_TOPICS[random.nextInt(GRAMMAR_TOPICS.length)];
+        
+        log.info("Selected word: {} with grammar topic: {}", randomWord.getOriginalWord(), grammarTopic);
+        return new GrammarPracticeResponse(randomWord, grammarTopic);
+    }
+
+    @Transactional(readOnly = true)
+    public GrammarPracticeResponse validateGrammarPractice(Long wordId, String userSentence, String grammarTopic) {
+        log.info("Validating grammar practice for wordId: {}, sentence: {}, topic: {}", wordId, userSentence, grammarTopic);
+        
+        Word word = getWord(wordId);
+        if (word == null) {
+            throw new EntityNotFoundException("Word not found with id: " + wordId);
+        }
+        
+        // Basic validation - check if sentence contains the word
+        boolean containsWord = userSentence.toLowerCase().contains(word.getOriginalWord().toLowerCase()) ||
+                             userSentence.toLowerCase().contains(word.getTranslation().toLowerCase());
+        
+        // Basic grammar topic validation (simplified for now)
+        boolean topicRelevant = validateGrammarTopic(userSentence, grammarTopic);
+        
+        boolean isCorrect = containsWord && topicRelevant;
+        
+        String feedback = isCorrect ? 
+            "Great job! Your sentence is correct." : 
+            "Try again. Make sure to use the given word and apply the grammar topic correctly.";
+        
+        String explanation = generateGrammarExplanation(grammarTopic);
+        
+        log.info("Grammar practice validation result: {}", isCorrect);
+        return new GrammarPracticeResponse(word, grammarTopic, isCorrect, feedback, explanation);
+    }
+    
+    private boolean validateGrammarTopic(String sentence, String grammarTopic) {
+        // Simplified validation - in a real app, you'd use NLP or grammar checking API
+        sentence = sentence.toLowerCase();
+        
+        switch (grammarTopic.toLowerCase()) {
+            case "present simple":
+                return sentence.contains("is") || sentence.contains("are") || 
+                       sentence.contains("do") || sentence.contains("does") ||
+                       sentence.endsWith("s") || sentence.contains("like") || sentence.contains("have");
+            case "present continuous":
+                return sentence.contains("ing") && (sentence.contains("is ") || sentence.contains("are "));
+            case "present perfect":
+                return sentence.contains("have ") || sentence.contains("has ") || sentence.contains("had ");
+            case "past simple":
+                return sentence.contains("ed") || sentence.contains("was") || sentence.contains("were") ||
+                       sentence.contains("went") || sentence.contains("had");
+            case "first conditional":
+                return sentence.contains("if") && (sentence.contains("will") || sentence.contains("going to"));
+            case "second conditional":
+                return sentence.contains("if") && sentence.contains("would");
+            case "passive voice":
+                return sentence.contains("by") && (sentence.contains("is ") || sentence.contains("are ") || 
+                        sentence.contains("was ") || sentence.contains("were "));
+            default:
+                return true; // For other topics, accept any sentence for now
+        }
+    }
+    
+    private String generateGrammarExplanation(String grammarTopic) {
+        switch (grammarTopic.toLowerCase()) {
+            case "present simple":
+                return "Present Simple is used for habits, routines, and general truths. Use base form of verb, add 's' for 3rd person singular.";
+            case "present continuous":
+                return "Present Continuous is used for actions happening now. Use 'be' + verb + 'ing'.";
+            case "present perfect":
+                return "Present Perfect is used for actions that started in the past and continue to the present. Use 'have/has' + past participle.";
+            case "past simple":
+                return "Past Simple is used for completed actions in the past. Use past form of verb or add 'ed'.";
+            case "first conditional":
+                return "First Conditional is used for real possibilities. Use 'if' + present simple, 'will' + base form.";
+            case "second conditional":
+                return "Second Conditional is used for unreal situations. Use 'if' + past simple, 'would' + base form.";
+            case "passive voice":
+                return "Passive Voice is used when the focus is on the action, not the doer. Use 'be' + past participle.";
+            default:
+                return "Practice using this grammar structure in your sentences.";
         }
     }
 } 

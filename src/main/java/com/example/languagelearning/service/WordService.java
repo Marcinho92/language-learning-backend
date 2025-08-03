@@ -149,7 +149,7 @@ public class WordService {
 
             if (c == '"') {
                 if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
-                    // Double quotes inside quoted field
+                    // Double quotes inside quoted field (escaped quote)
                     currentField.append('"');
                     i++;
                 } else {
@@ -157,15 +157,16 @@ public class WordService {
                     inQuotes = !inQuotes;
                 }
             } else if (c == ',' && !inQuotes) {
-                // End of field
-                fields.add(currentField.toString());
+                // End of field (only if not inside quotes)
+                fields.add(currentField.toString().trim());
                 currentField.setLength(0);
             } else {
                 currentField.append(c);
             }
         }
 
-        fields.add(currentField.toString());
+        // Add the last field
+        fields.add(currentField.toString().trim());
         return fields.toArray(new String[0]);
     }
 

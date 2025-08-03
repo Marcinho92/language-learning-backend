@@ -384,7 +384,11 @@ public class WordService {
         String grammarTopic = GRAMMAR_TOPICS[random.nextInt(GRAMMAR_TOPICS.length)];
         
         log.info("Selected word: {} with grammar topic: {}", randomWord.getOriginalWord(), grammarTopic);
-        return new GrammarPracticeResponse(randomWord, grammarTopic);
+        
+        // Generate explanation for the grammar topic
+        String explanation = generateGrammarExplanation(grammarTopic);
+        
+        return new GrammarPracticeResponse(randomWord, grammarTopic, false, null, explanation);
     }
 
     @Transactional(readOnly = true)

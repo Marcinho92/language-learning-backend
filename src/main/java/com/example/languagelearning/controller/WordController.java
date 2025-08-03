@@ -20,7 +20,9 @@ import java.util.Map;
 @CrossOrigin(origins = {
     "http://localhost:3000", 
     "https://language-learning-frontend.railway.app",
-    "https://language-learning-frontend-production.up.railway.app"
+    "https://language-learning-frontend-production.up.railway.app",
+    "https://www.langlearn.top",
+    "https://langlearn.top"
 })
 public class WordController {
     private final WordService wordService;

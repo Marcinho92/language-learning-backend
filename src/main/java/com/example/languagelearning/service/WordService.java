@@ -396,18 +396,17 @@ public class WordService {
             throw new EntityNotFoundException("Word not found with id: " + wordId);
         }
         
-        // Basic validation - check if sentence contains the word
+        // Simplified validation - just check if sentence contains the word
         boolean containsWord = userSentence.toLowerCase().contains(word.getOriginalWord().toLowerCase()) ||
                              userSentence.toLowerCase().contains(word.getTranslation().toLowerCase());
         
-        // Basic grammar topic validation (simplified for now)
-        boolean topicRelevant = validateGrammarTopic(userSentence, grammarTopic);
-        
-        boolean isCorrect = containsWord && topicRelevant;
+        // For now, accept any sentence that contains the word
+        // Grammar validation is too complex to implement accurately
+        boolean isCorrect = containsWord;
         
         String feedback = isCorrect ? 
-            "Great job! Your sentence is correct." : 
-            "Try again. Make sure to use the given word and apply the grammar topic correctly.";
+            "Great job! Your sentence contains the word correctly. Remember to practice the grammar structure." : 
+            "Try again. Make sure to use the word '" + word.getOriginalWord() + "' in your sentence.";
         
         String explanation = generateGrammarExplanation(grammarTopic);
         
@@ -415,52 +414,87 @@ public class WordService {
         return new GrammarPracticeResponse(word, grammarTopic, isCorrect, feedback, explanation);
     }
     
-    private boolean validateGrammarTopic(String sentence, String grammarTopic) {
-        // Simplified validation - in a real app, you'd use NLP or grammar checking API
-        sentence = sentence.toLowerCase();
-        
-        switch (grammarTopic.toLowerCase()) {
-            case "present simple":
-                return sentence.contains("is") || sentence.contains("are") || 
-                       sentence.contains("do") || sentence.contains("does") ||
-                       sentence.endsWith("s") || sentence.contains("like") || sentence.contains("have");
-            case "present continuous":
-                return sentence.contains("ing") && (sentence.contains("is ") || sentence.contains("are "));
-            case "present perfect":
-                return sentence.contains("have ") || sentence.contains("has ") || sentence.contains("had ");
-            case "past simple":
-                return sentence.contains("ed") || sentence.contains("was") || sentence.contains("were") ||
-                       sentence.contains("went") || sentence.contains("had");
-            case "first conditional":
-                return sentence.contains("if") && (sentence.contains("will") || sentence.contains("going to"));
-            case "second conditional":
-                return sentence.contains("if") && sentence.contains("would");
-            case "passive voice":
-                return sentence.contains("by") && (sentence.contains("is ") || sentence.contains("are ") || 
-                        sentence.contains("was ") || sentence.contains("were "));
-            default:
-                return true; // For other topics, accept any sentence for now
-        }
-    }
+
+    
+
     
     private String generateGrammarExplanation(String grammarTopic) {
         switch (grammarTopic.toLowerCase()) {
             case "present simple":
-                return "Present Simple is used for habits, routines, and general truths. Use base form of verb, add 's' for 3rd person singular.";
+                return "Present Simple is used for habits, routines, and general truths.\n\n" +
+                       "Structure: Subject + base verb (add 's' for 3rd person singular)\n" +
+                       "Examples:\n" +
+                       "• I work every day.\n" +
+                       "• She works in an office.\n" +
+                       "• They like coffee.\n" +
+                       "• He doesn't like tea.";
             case "present continuous":
-                return "Present Continuous is used for actions happening now. Use 'be' + verb + 'ing'.";
+                return "Present Continuous is used for actions happening now or around now.\n\n" +
+                       "Structure: Subject + be (am/is/are) + verb + ing\n" +
+                       "Examples:\n" +
+                       "• I am working now.\n" +
+                       "• She is reading a book.\n" +
+                       "• They are studying English.\n" +
+                       "• We are not sleeping.";
             case "present perfect":
-                return "Present Perfect is used for actions that started in the past and continue to the present. Use 'have/has' + past participle.";
+                return "Present Perfect is used for actions that started in the past and continue to the present.\n\n" +
+                       "Structure: Subject + have/has + past participle\n" +
+                       "Examples:\n" +
+                       "• I have worked here for 5 years.\n" +
+                       "• She has finished her homework.\n" +
+                       "• They have never been to Paris.\n" +
+                       "• We haven't seen that movie.";
             case "past simple":
-                return "Past Simple is used for completed actions in the past. Use past form of verb or add 'ed'.";
+                return "Past Simple is used for completed actions in the past.\n\n" +
+                       "Structure: Subject + past form of verb (regular: +ed, irregular: special form)\n" +
+                       "Examples:\n" +
+                       "• I worked yesterday.\n" +
+                       "• She went to the store.\n" +
+                       "• They studied all night.\n" +
+                       "• He didn't like the movie.";
+            case "past perfect":
+                return "Past Perfect is used for actions that happened before another past action.\n\n" +
+                       "Structure: Subject + had + past participle\n" +
+                       "Examples:\n" +
+                       "• I had finished my work before she arrived.\n" +
+                       "• She had already eaten when I called.\n" +
+                       "• They had never seen such a beautiful sunset.\n" +
+                       "• We hadn't met before the party.";
+            case "future simple":
+                return "Future Simple is used for predictions and spontaneous decisions.\n\n" +
+                       "Structure: Subject + will + base verb\n" +
+                       "Examples:\n" +
+                       "• I will help you with that.\n" +
+                       "• She will be here tomorrow.\n" +
+                       "• They will probably come to the party.\n" +
+                       "• We won't be late.";
             case "first conditional":
-                return "First Conditional is used for real possibilities. Use 'if' + present simple, 'will' + base form.";
+                return "First Conditional is used for real possibilities in the future.\n\n" +
+                       "Structure: If + present simple, will + base verb\n" +
+                       "Examples:\n" +
+                       "• If it rains, I will stay home.\n" +
+                       "• If you study hard, you will pass the exam.\n" +
+                       "• She will be happy if you call her.\n" +
+                       "• We will go to the beach if the weather is nice.";
             case "second conditional":
-                return "Second Conditional is used for unreal situations. Use 'if' + past simple, 'would' + base form.";
+                return "Second Conditional is used for unreal or hypothetical situations.\n\n" +
+                       "Structure: If + past simple, would + base verb\n" +
+                       "Examples:\n" +
+                       "• If I had money, I would buy a car.\n" +
+                       "• If you studied more, you would get better grades.\n" +
+                       "• She would travel the world if she could.\n" +
+                       "• We would be rich if we won the lottery.";
             case "passive voice":
-                return "Passive Voice is used when the focus is on the action, not the doer. Use 'be' + past participle.";
+                return "Passive Voice is used when the focus is on the action, not the doer.\n\n" +
+                       "Structure: Subject + be + past participle (+ by + agent)\n" +
+                       "Examples:\n" +
+                       "• The book was written by Shakespeare.\n" +
+                       "• The house is being built.\n" +
+                       "• The letter has been sent.\n" +
+                       "• The car was stolen last night.";
             default:
-                return "Practice using this grammar structure in your sentences.";
+                return "Practice using this grammar structure in your sentences.\n\n" +
+                       "Make sure to use the given word in your sentence and apply the grammar topic correctly.";
         }
     }
 } 

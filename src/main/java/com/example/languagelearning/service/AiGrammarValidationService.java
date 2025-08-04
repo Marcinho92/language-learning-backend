@@ -1,18 +1,22 @@
 package com.example.languagelearning.service;
 
 import com.example.languagelearning.model.Word;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class AiGrammarValidationService {
 
     private final ChatClient chatClient;
+
+    @Autowired
+    public AiGrammarValidationService(ChatClient.Builder chatClientBuilder) {
+        this.chatClient = chatClientBuilder.build();
+    }
 
     public GrammarValidationResult validateSentence(String userSentence, Word word, String grammarTopic) {
         log.info("Validating sentence: '{}' for word: '{}' with grammar topic: '{}'", userSentence, word.getOriginalWord(), grammarTopic);

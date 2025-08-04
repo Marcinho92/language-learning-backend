@@ -23,13 +23,21 @@ public class AiGrammarValidationService {
 
         try {
             String prompt = buildValidationPrompt(userSentence, word, grammarTopic);
+            
+            log.info("=== OPENAI REQUEST ===");
+            log.info("Prompt sent to OpenAI:");
+            log.info(prompt);
+            log.info("=== END REQUEST ===");
 
             String aiResponse = chatClient.prompt()
                     .user(prompt)
                     .call()
                     .content();
 
-            log.info("AI response: {}", aiResponse);
+            log.info("=== OPENAI RESPONSE ===");
+            log.info("Response from OpenAI:");
+            log.info(aiResponse);
+            log.info("=== END RESPONSE ===");
 
             return parseAiResponse(aiResponse, userSentence, word, grammarTopic);
 

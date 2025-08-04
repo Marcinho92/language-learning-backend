@@ -26,6 +26,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class WordService {
     private final WordRepository wordRepository;
+    private final AiGrammarValidationService aiValidationService;
     private final Random random = new Random();
 
     @PersistenceContext
@@ -400,27 +401,14 @@ public class WordService {
             throw new EntityNotFoundException("Word not found with id: " + wordId);
         }
         
-        // Simplified validation - just check if sentence contains the word
-        boolean containsWord = userSentence.toLowerCase().contains(word.getOriginalWord().toLowerCase()) ||
-                             userSentence.toLowerCase().contains(word.getTranslation().toLowerCase());
+        // Use AI validation service
+        AiGrammarValidationService.GrammarValidationResult validationResult = 
+            aiValidationService.validateSentence(userSentence, word, grammarTopic);
         
-        // For now, accept any sentence that contains the word
-        // Grammar validation is too complex to implement accurately
-        boolean isCorrect = containsWord;
-        
-        String feedback = isCorrect ? 
-            "Great job! Your sentence contains the word correctly. Remember to practice the grammar structure." : 
-            "Try again. Make sure to use the word '" + word.getOriginalWord() + "' in your sentence.";
-        
-        String explanation = generateGrammarExplanation(grammarTopic);
-        
-        log.info("Grammar practice validation result: {}", isCorrect);
-        return new GrammarPracticeResponse(word, grammarTopic, isCorrect, feedback, explanation);
+        log.info("AI validation result: {}", validationResult.isCorrect());
+        return new GrammarPracticeResponse(word, grammarTopic, validationResult.isCorrect(), 
+            validationResult.getFeedback(), validationResult.getExplanation());
     }
-    
-
-    
-
     
     private String generateGrammarExplanation(String grammarTopic) {
         switch (grammarTopic.toLowerCase()) {

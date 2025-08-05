@@ -1,0 +1,202 @@
+ai:
+  grammar:
+    validation:
+      main-prompt: |
+        You are an English grammar teacher. Your task is to validate if a student's sentence is correct according to the given grammar topic and contains the required word.
+        
+        Student's sentence: "%s"
+        Required word to use: "%s" (translation: "%s")
+        Grammar topic: "%s"
+        
+        Please analyze the sentence and respond in the following JSON format:
+        {
+            "isCorrect": true/false,
+            "feedback": "Brief feedback about the sentence",
+            "correction": "Corrected version of the sentence (if incorrect)",
+            "explanation": "Detailed explanation of the grammar rules applied"
+        }
+        
+        Rules:
+        1. Check if the sentence contains the required word (either original or translation)
+        2. Check if the sentence follows the grammar topic rules
+        3. Provide helpful feedback for improvement
+        4. If incorrect, provide a corrected version
+        5. Give a brief explanation of the grammar rules
+        
+        Grammar topics and their rules:
+        - Present Simple: Subject + base verb (add 's' for 3rd person singular)
+        - Present Continuous: Subject + be (am/is/are) + verb + ing
+        - Past Simple: Subject + past form of verb
+        - Past Continuous: Subject + was/were + verb + ing
+        - Present Perfect: Subject + have/has + past participle
+        - Past Perfect: Subject + had + past participle
+        - Future Simple: Subject + will + base verb
+        - First Conditional: If + present simple, will + base verb
+        - Second Conditional: If + past simple, would + base verb
+        - Third Conditional: If + past perfect, would have + past participle
+        - Passive Voice: Subject + be + past participle
+        - Modal Verbs: Subject + modal verb + base verb
+        - Gerunds and Infinitives: verb + ing or to + base verb
+        - Relative Clauses: Noun + relative pronoun + clause
+        - Reported Speech: Subject + reporting verb + that + reported clause
+        
+        Respond only with valid JSON.
+      
+      grammar-explanations:
+        present-simple: |
+          Present Simple is used for habits, routines, and general truths.
+          
+          Structure: Subject + base verb (add 's' for 3rd person singular)
+          Examples:
+          • I work every day.
+          • She works in an office.
+          • They like coffee.
+          • He doesn't like tea.
+        
+        present-continuous: |
+          Present Continuous is used for actions happening now or around now.
+          
+          Structure: Subject + be (am/is/are) + verb + ing
+          Examples:
+          • I am working now.
+          • She is reading a book.
+          • They are studying English.
+          • We are not sleeping.
+        
+        past-simple: |
+          Past Simple is used for completed actions in the past.
+          
+          Structure: Subject + past form of verb (regular: +ed, irregular: special form)
+          Examples:
+          • I worked yesterday.
+          • She went to the store.
+          • They studied all night.
+          • He didn't like the movie.
+        
+        past-continuous: |
+          Past Continuous is used for actions that were in progress at a specific time in the past.
+          
+          Structure: Subject + was/were + verb + ing
+          Examples:
+          • I was working when you called.
+          • She was reading a book at 8 PM.
+          • They were studying all night.
+          • We were not sleeping during the storm.
+        
+        present-perfect: |
+          Present Perfect is used for actions that started in the past and continue to the present.
+          
+          Structure: Subject + have/has + past participle
+          Examples:
+          • I have worked here for 5 years.
+          • She has finished her homework.
+          • They have never been to Paris.
+          • We haven't seen that movie.
+        
+        past-perfect: |
+          Past Perfect is used for actions that happened before another past action.
+          
+          Structure: Subject + had + past participle
+          Examples:
+          • I had finished my work before she arrived.
+          • She had already eaten when I called.
+          • They had never seen such a beautiful sunset.
+          • We hadn't met before the party.
+        
+        future-simple: |
+          Future Simple is used for predictions and spontaneous decisions.
+          
+          Structure: Subject + will + base verb
+          Examples:
+          • I will help you with that.
+          • She will be here tomorrow.
+          • They will probably come to the party.
+          • We won't be late.
+        
+        first-conditional: |
+          First Conditional is used for real possibilities in the future.
+          
+          Structure: If + present simple, will + base verb
+          Examples:
+          • If it rains, I will stay home.
+          • If you study hard, you will pass the exam.
+          • She will be happy if you call her.
+          • We will go to the beach if the weather is nice.
+        
+        second-conditional: |
+          Second Conditional is used for unreal or hypothetical situations.
+          
+          Structure: If + past simple, would + base verb
+          Examples:
+          • If I had money, I would buy a car.
+          • If you studied more, you would get better grades.
+          • She would travel the world if she could.
+          • We would be rich if we won the lottery.
+        
+        third-conditional: |
+          Third Conditional is used for unreal situations in the past.
+          
+          Structure: If + past perfect, would have + past participle
+          Examples:
+          • If I had studied harder, I would have passed the exam.
+          • If she had known, she would have told us.
+          • They would have won if they had played better.
+          • We would have been rich if we had invested earlier.
+        
+        passive-voice: |
+          Passive Voice is used when the focus is on the action, not the doer.
+          
+          Structure: Subject + be + past participle (+ by + agent)
+          Examples:
+          • The book was written by Shakespeare.
+          • The house is being built.
+          • The letter has been sent.
+          • The car was stolen last night.
+        
+        modal-verbs: |
+          Modal Verbs express ability, possibility, permission, obligation, and advice.
+          
+          Structure: Subject + modal verb + base verb
+          Common modal verbs: can, could, may, might, must, shall, should, will, would
+          Examples:
+          • I can speak English.
+          • You should study harder.
+          • She must finish her work.
+          • They might come to the party.
+          • We could help you with that.
+        
+        gerunds-and-infinitives: |
+          Gerunds and Infinitives are verb forms used as nouns.
+          
+          Gerund Structure: verb + ing (used as subject, object, after prepositions)
+          Infinitive Structure: to + base verb (used after certain verbs, adjectives)
+          Examples:
+          • I enjoy reading books. (gerund)
+          • She wants to learn English. (infinitive)
+          • Swimming is good exercise. (gerund as subject)
+          • It's important to study regularly. (infinitive)
+        
+        relative-clauses: |
+          Relative Clauses provide additional information about a noun.
+          
+          Structure: Noun + relative pronoun (who, which, that, where, when) + clause
+          Examples:
+          • The man who lives next door is a doctor.
+          • The book that I bought is very interesting.
+          • The place where I grew up is beautiful.
+          • The time when we met was perfect.
+        
+        reported-speech: |
+          Reported Speech is used to report what someone said.
+          
+          Structure: Subject + reporting verb + that + reported clause (tense changes)
+          Examples:
+          • She said that she was tired.
+          • He told me that he would come.
+          • They mentioned that they had finished.
+          • I asked if she could help.
+        
+        default: |
+          Practice using this grammar structure in your sentences.
+          
+          Make sure to use the given word in your sentence and apply the grammar topic correctly. 

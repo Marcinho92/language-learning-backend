@@ -420,13 +420,13 @@ public class WordService {
         
         // Generowanie audio dla correction
         String audioUrl = null;
-        if (validationResult.getCorrection() != null && !validationResult.getCorrection().trim().isEmpty()) {
+        if (validationResult.correction() != null && !validationResult.correction().trim().isEmpty()) {
             String language = word.getLanguage() != null ? word.getLanguage() : "en";
-            audioUrl = textToSpeechService.generateAudioBase64(validationResult.getCorrection(), language);
+            audioUrl = textToSpeechService.generateAudioBase64(validationResult.correction(), language);
         }
         
         return new GrammarPracticeResponse(word, grammarTopic, validationResult.isCorrect(), 
-            validationResult.getFeedback(), validationResult.getCorrection(), validationResult.getExplanation(), audioUrl);
+            validationResult.feedback(), validationResult.correction(), validationResult.explanation(), audioUrl);
     }
     
     private String generateGrammarExplanation(String grammarTopic) {

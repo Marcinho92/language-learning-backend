@@ -2,7 +2,6 @@ package com.example.languagelearning.service;
 
 import com.theokanning.openai.service.OpenAiService;
 import com.theokanning.openai.audio.CreateSpeechRequest;
-import com.theokanning.openai.audio.CreateSpeechRequest.Model;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -46,14 +45,14 @@ public class TextToSpeechService {
             log.info("Generating audio for text: '{}' in language: '{}' with voice: '{}'", text, language, voice);
             
             CreateSpeechRequest request = CreateSpeechRequest.builder()
-                    .model(Model.TTS_1)
+                    .model("tts-1")
                     .input(text)
-                    .voice(com.theokanning.openai.audio.CreateSpeechRequest.Voice.valueOf(voice.toUpperCase()))
+                    .voice(voice)
                     .responseFormat("mp3")
                     .speed(1.0)
                     .build();
 
-            byte[] audioBytes = openAiService.createSpeech(request).getBody().bytes();
+            byte[] audioBytes = openAiService.createSpeech(request).bytes();
             
             // Convert to Base64
             String base64Audio = java.util.Base64.getEncoder().encodeToString(audioBytes);

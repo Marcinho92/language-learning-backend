@@ -113,6 +113,11 @@ public class AiGrammarValidationService {
                 feedback = isCorrect ? "Great job! Your sentence is correct." : "Your sentence needs improvement.";
             }
 
+            // Logika correction: jeśli zdanie jest poprawne, correction = oryginalne zdanie
+            if (isCorrect) {
+                correction = userSentence;
+            }
+
             if (explanation == null) {
                 explanation = generateGrammarExplanation(grammarTopic);
             }

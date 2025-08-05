@@ -26,6 +26,7 @@ import java.util.Random;
 public class WordService {
     private final WordRepository wordRepository;
     private final AiGrammarValidationService aiValidationService;
+    private final TextToSpeechService textToSpeechService;
     private final Random random = new Random();
 
     @PersistenceContext
@@ -388,7 +389,18 @@ public class WordService {
         // Generate explanation for the grammar topic
         String explanation = generateGrammarExplanation(grammarTopic);
         
-        return new GrammarPracticeResponse(randomWord, grammarTopic, false, null, null, explanation);
+        return new GrammarPracticeResponse(randomWord, grammarTopic, false, null, null, explanation, null);
+    }
+
+    public String generateAudio(String text, String language) {
+        log.info("Generating audio for text: '{}' in language: '{}'", text, language);
+        try {
+            String defaultLanguage = language != null ? language : "en";
+            return textToSpeechService.generateAudioBase64(text, defaultLanguage);
+        } catch (Exception e) {
+            log.error("Error generating audio", e);
+            return null;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -405,8 +417,16 @@ public class WordService {
             aiValidationService.validateSentence(userSentence, word, grammarTopic);
         
         log.info("AI validation result: {}", validationResult.isCorrect());
+        
+        // Generowanie audio dla correction
+        String audioUrl = null;
+        if (validationResult.getCorrection() != null && !validationResult.getCorrection().trim().isEmpty()) {
+            String language = word.getLanguage() != null ? word.getLanguage() : "en";
+            audioUrl = textToSpeechService.generateAudioBase64(validationResult.getCorrection(), language);
+        }
+        
         return new GrammarPracticeResponse(word, grammarTopic, validationResult.isCorrect(), 
-            validationResult.getFeedback(), validationResult.getCorrection(), validationResult.getExplanation());
+            validationResult.getFeedback(), validationResult.getCorrection(), validationResult.getExplanation(), audioUrl);
     }
     
     private String generateGrammarExplanation(String grammarTopic) {

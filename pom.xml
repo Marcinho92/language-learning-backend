@@ -59,6 +59,13 @@
             <version>1.0.0-M6</version>
         </dependency>
         
+        <!-- OpenAI TTS API -->
+        <dependency>
+            <groupId>com.theokanning.openai-gpt3-java</groupId>
+            <artifactId>service</artifactId>
+            <version>0.18.2</version>
+        </dependency>
+        
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

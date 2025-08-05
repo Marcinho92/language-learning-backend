@@ -9,6 +9,7 @@ public class GrammarPracticeResponse {
     private String feedback;
     private String correction;
     private String explanation;
+    private String audioUrl;
 
     // Constructors
     public GrammarPracticeResponse() {}
@@ -25,6 +26,16 @@ public class GrammarPracticeResponse {
         this.feedback = feedback;
         this.correction = correction;
         this.explanation = explanation;
+    }
+
+    public GrammarPracticeResponse(Word word, String grammarTopic, boolean isCorrect, String feedback, String correction, String explanation, String audioUrl) {
+        this.word = word;
+        this.grammarTopic = grammarTopic;
+        this.isCorrect = isCorrect;
+        this.feedback = feedback;
+        this.correction = correction;
+        this.explanation = explanation;
+        this.audioUrl = audioUrl;
     }
 
     // Getters and Setters
@@ -74,5 +85,13 @@ public class GrammarPracticeResponse {
 
     public void setExplanation(String explanation) {
         this.explanation = explanation;
+    }
+
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
     }
 } 

@@ -174,4 +174,24 @@ public class WordController {
             throw e;
         }
     }
+
+    @PostMapping("/grammar-practice/audio")
+    public ResponseEntity<Map<String, String>> generateAudio(
+            @RequestBody Map<String, String> request) {
+        log.info("Received request to generate audio");
+        try {
+            String text = request.get("text");
+            String language = request.get("language");
+            
+            if (text == null || text.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Text is required"));
+            }
+            
+            String audioBase64 = wordService.generateAudio(text, language);
+            return ResponseEntity.ok(Map.of("audioBase64", audioBase64));
+        } catch (Exception e) {
+            log.error("Error generating audio", e);
+            throw e;
+        }
+    }
 } 

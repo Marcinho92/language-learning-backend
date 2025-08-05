@@ -50,48 +50,7 @@ public class AiGrammarValidationService {
         String mainPrompt = promptsConfig.getMainPrompt();
         if (mainPrompt == null) {
             log.error("Main prompt is null! Configuration not loaded properly.");
-            // Fallback to hardcoded prompt
-            return String.format("""
-                    You are an English grammar teacher. Your task is to validate if a student's sentence is correct according to the given grammar topic and contains the required word.
-                    
-                    Student's sentence: "%s"
-                    Required word to use: "%s" (translation: "%s")
-                    Grammar topic: "%s"
-                    
-                    Please analyze the sentence and respond in the following JSON format:
-                    {
-                        "isCorrect": true/false,
-                        "feedback": "Brief feedback about the sentence",
-                        "correction": "Corrected version of the sentence (if incorrect)",
-                        "explanation": "Detailed explanation of the grammar rules applied"
-                    }
-                    
-                    Rules:
-                    1. Check if the sentence contains the required word (either original or translation)
-                    2. Check if the sentence follows the grammar topic rules
-                    3. Provide helpful feedback for improvement
-                    4. If incorrect, provide a corrected version
-                    5. Give a brief explanation of the grammar rules
-                    
-                    Grammar topics and their rules:
-                    - Present Simple: Subject + base verb (add 's' for 3rd person singular)
-                    - Present Continuous: Subject + be (am/is/are) + verb + ing
-                    - Past Simple: Subject + past form of verb
-                    - Past Continuous: Subject + was/were + verb + ing
-                    - Present Perfect: Subject + have/has + past participle
-                    - Past Perfect: Subject + had + past participle
-                    - Future Simple: Subject + will + base verb
-                    - First Conditional: If + present simple, will + base verb
-                    - Second Conditional: If + past simple, would + base verb
-                    - Third Conditional: If + past perfect, would have + past participle
-                    - Passive Voice: Subject + be + past participle
-                    - Modal Verbs: Subject + modal verb + base verb
-                    - Gerunds and Infinitives: verb + ing or to + base verb
-                    - Relative Clauses: Noun + relative pronoun + clause
-                    - Reported Speech: Subject + reporting verb + that + reported clause
-                    
-                    Respond only with valid JSON.
-                    """, userSentence, word.getOriginalWord(), word.getTranslation(), grammarTopic);
+            throw new IllegalStateException("AI prompts configuration not loaded. Please check application.yml file.");
         }
         
         log.debug("Using main prompt from configuration");
@@ -105,14 +64,23 @@ public class AiGrammarValidationService {
 
             boolean isCorrect = root.has("isCorrect") && root.get("isCorrect").asBoolean(false);
             String feedback = root.has("feedback") ? root.get("feedback").asText(null) : null;
-            String correction = root.has("correction") ? root.get("correction").asText(null) : userSentence;
-            String explanation = root.has("explanation") ? root.get("explanation").asText(null) : generateGrammarExplanation(grammarTopic);
+            String correction = root.has("correction") ? root.get("correction").asText(null) : null;
+            String explanation = root.has("explanation") ? root.get("explanation").asText(null) : null;
 
             // Fallback: feedback na podstawie isCorrect
             if (feedback == null || feedback.isBlank() ||
                     (isCorrect && feedback.toLowerCase().contains("incorrect")) ||
                     (!isCorrect && feedback.toLowerCase().contains("correct"))) {
                 feedback = isCorrect ? "Great job! Your sentence is correct." : "Your sentence needs improvement.";
+            }
+
+            // Logika correction: jeśli zdanie jest poprawne, correction = oryginalne zdanie
+            if (isCorrect) {
+                correction = userSentence;
+            }
+
+            if (explanation == null) {
+                explanation = generateGrammarExplanation(grammarTopic);
             }
 
             return new GrammarValidationResult(isCorrect, feedback, correction, explanation);

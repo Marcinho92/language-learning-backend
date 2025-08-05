@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @Slf4j
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class AiGrammarValidationService {
 
     private final ChatClient chatClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public AiGrammarValidationService(ChatClient.Builder chatClientBuilder) {
@@ -96,14 +99,17 @@ public class AiGrammarValidationService {
 
     private GrammarValidationResult parseAiResponse(String aiResponse, String userSentence, Word word, String grammarTopic) {
         try {
-            // Simple JSON parsing - in production you might want to use a proper JSON parser
-            boolean isCorrect = aiResponse.toLowerCase().contains("\"iscorrect\":true");
+            JsonNode root = objectMapper.readTree(aiResponse);
 
-            String feedback = extractField(aiResponse, "feedback");
-            String correction = extractField(aiResponse, "correction");
-            String explanation = extractField(aiResponse, "explanation");
+            boolean isCorrect = root.has("isCorrect") && root.get("isCorrect").asBoolean(false);
+            String feedback = root.has("feedback") ? root.get("feedback").asText(null) : null;
+            String correction = root.has("correction") ? root.get("correction").asText(null) : null;
+            String explanation = root.has("explanation") ? root.get("explanation").asText(null) : null;
 
-            if (feedback == null) {
+            // Fallback: feedback na podstawie isCorrect
+            if (feedback == null || feedback.isBlank() ||
+                (isCorrect && feedback.toLowerCase().contains("incorrect")) ||
+                (!isCorrect && feedback.toLowerCase().contains("correct"))) {
                 feedback = isCorrect ? "Great job! Your sentence is correct." : "Your sentence needs improvement.";
             }
 

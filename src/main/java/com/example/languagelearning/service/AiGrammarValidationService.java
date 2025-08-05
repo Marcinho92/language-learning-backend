@@ -45,6 +45,7 @@ public class AiGrammarValidationService {
             log.error("Error validating sentence with AI", e);
             return new GrammarValidationResult(false,
                     "Error validating sentence. Please try again.",
+                    null,
                     "AI validation service is temporarily unavailable.");
         }
     }
@@ -53,16 +54,16 @@ public class AiGrammarValidationService {
         return String.format("""
             You are an English grammar teacher. Your task is to validate if a student's sentence is correct according to the given grammar topic and contains the required word.
             
-            Student's sentence: \"%s\"
-            Required word to use: \"%s\" (translation: \"%s\")
-            Grammar topic: \"%s\"
+            Student's sentence: "%s"
+            Required word to use: "%s" (translation: "%s")
+            Grammar topic: "%s"
             
             Please analyze the sentence and respond in the following JSON format:
             {
-                \"isCorrect\": true/false,
-                \"feedback\": \"Brief feedback about the sentence\",
-                \"correction\": \"Corrected version of the sentence (if incorrect)\",
-                \"explanation\": \"Detailed explanation of the grammar rules applied\"
+                "isCorrect": true/false,
+                "feedback": "Brief feedback about the sentence",
+                "correction": "Corrected version of the sentence (if incorrect)",
+                "explanation": "Detailed explanation of the grammar rules applied"
             }
             
             Rules:
@@ -96,8 +97,7 @@ public class AiGrammarValidationService {
     private GrammarValidationResult parseAiResponse(String aiResponse, String userSentence, Word word, String grammarTopic) {
         try {
             // Simple JSON parsing - in production you might want to use a proper JSON parser
-            boolean isCorrect = aiResponse.toLowerCase().contains("\"iscorrect\":true") ||
-                    aiResponse.toLowerCase().contains("\"isCorrect\":true");
+            boolean isCorrect = aiResponse.toLowerCase().contains("\"iscorrect\":true");
 
             String feedback = extractField(aiResponse, "feedback");
             String correction = extractField(aiResponse, "correction");
@@ -111,12 +111,13 @@ public class AiGrammarValidationService {
                 explanation = generateGrammarExplanation(grammarTopic);
             }
 
-            return new GrammarValidationResult(isCorrect, feedback, explanation);
+            return new GrammarValidationResult(isCorrect, feedback, correction, explanation);
 
         } catch (Exception e) {
             log.error("Error parsing AI response: {}", aiResponse, e);
             return new GrammarValidationResult(false,
                     "Error processing AI response. Please try again.",
+                    null,
                     generateGrammarExplanation(grammarTopic));
         }
     }
@@ -272,11 +273,13 @@ public class AiGrammarValidationService {
     public static class GrammarValidationResult {
         private final boolean isCorrect;
         private final String feedback;
+        private final String correction;
         private final String explanation;
 
-        public GrammarValidationResult(boolean isCorrect, String feedback, String explanation) {
+        public GrammarValidationResult(boolean isCorrect, String feedback, String correction, String explanation) {
             this.isCorrect = isCorrect;
             this.feedback = feedback;
+            this.correction = correction;
             this.explanation = explanation;
         }
 
@@ -286,6 +289,10 @@ public class AiGrammarValidationService {
 
         public String getFeedback() {
             return feedback;
+        }
+
+        public String getCorrection() {
+            return correction;
         }
 
         public String getExplanation() {

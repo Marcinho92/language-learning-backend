@@ -388,7 +388,7 @@ public class WordService {
         // Generate explanation for the grammar topic
         String explanation = generateGrammarExplanation(grammarTopic);
         
-        return new GrammarPracticeResponse(randomWord, grammarTopic, false, null, explanation);
+        return new GrammarPracticeResponse(randomWord, grammarTopic, false, null, null, explanation);
     }
 
     @Transactional(readOnly = true)
@@ -406,7 +406,7 @@ public class WordService {
         
         log.info("AI validation result: {}", validationResult.isCorrect());
         return new GrammarPracticeResponse(word, grammarTopic, validationResult.isCorrect(), 
-            validationResult.getFeedback(), validationResult.getExplanation());
+            validationResult.getFeedback(), validationResult.getCorrection(), validationResult.getExplanation());
     }
     
     private String generateGrammarExplanation(String grammarTopic) {

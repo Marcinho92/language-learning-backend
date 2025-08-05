@@ -22,6 +22,7 @@ public class AiGrammarValidationService {
     public AiGrammarValidationService(ChatClient.Builder chatClientBuilder, AiPromptsConfig promptsConfig) {
         this.chatClient = chatClientBuilder.build();
         this.promptsConfig = promptsConfig;
+        log.info("AiGrammarValidationService initialized with promptsConfig: {}", promptsConfig);
     }
 
     public GrammarValidationResult validateSentence(String userSentence, Word word, String grammarTopic) {
@@ -46,7 +47,55 @@ public class AiGrammarValidationService {
     }
 
     private String buildValidationPrompt(String userSentence, Word word, String grammarTopic) {
-        return String.format(promptsConfig.getMainPrompt(), 
+        String mainPrompt = promptsConfig.getMainPrompt();
+        if (mainPrompt == null) {
+            log.error("Main prompt is null! Configuration not loaded properly.");
+            // Fallback to hardcoded prompt
+            return String.format("""
+                    You are an English grammar teacher. Your task is to validate if a student's sentence is correct according to the given grammar topic and contains the required word.
+                    
+                    Student's sentence: "%s"
+                    Required word to use: "%s" (translation: "%s")
+                    Grammar topic: "%s"
+                    
+                    Please analyze the sentence and respond in the following JSON format:
+                    {
+                        "isCorrect": true/false,
+                        "feedback": "Brief feedback about the sentence",
+                        "correction": "Corrected version of the sentence (if incorrect)",
+                        "explanation": "Detailed explanation of the grammar rules applied"
+                    }
+                    
+                    Rules:
+                    1. Check if the sentence contains the required word (either original or translation)
+                    2. Check if the sentence follows the grammar topic rules
+                    3. Provide helpful feedback for improvement
+                    4. If incorrect, provide a corrected version
+                    5. Give a brief explanation of the grammar rules
+                    
+                    Grammar topics and their rules:
+                    - Present Simple: Subject + base verb (add 's' for 3rd person singular)
+                    - Present Continuous: Subject + be (am/is/are) + verb + ing
+                    - Past Simple: Subject + past form of verb
+                    - Past Continuous: Subject + was/were + verb + ing
+                    - Present Perfect: Subject + have/has + past participle
+                    - Past Perfect: Subject + had + past participle
+                    - Future Simple: Subject + will + base verb
+                    - First Conditional: If + present simple, will + base verb
+                    - Second Conditional: If + past simple, would + base verb
+                    - Third Conditional: If + past perfect, would have + past participle
+                    - Passive Voice: Subject + be + past participle
+                    - Modal Verbs: Subject + modal verb + base verb
+                    - Gerunds and Infinitives: verb + ing or to + base verb
+                    - Relative Clauses: Noun + relative pronoun + clause
+                    - Reported Speech: Subject + reporting verb + that + reported clause
+                    
+                    Respond only with valid JSON.
+                    """, userSentence, word.getOriginalWord(), word.getTranslation(), grammarTopic);
+        }
+        
+        log.debug("Using main prompt from configuration");
+        return String.format(mainPrompt, 
                 userSentence, word.getOriginalWord(), word.getTranslation(), grammarTopic);
     }
 

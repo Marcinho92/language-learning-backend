@@ -2,11 +2,11 @@
 
 ## Przegląd
 
-Prompty używane przez `AiGrammarValidationService` zostały przeniesione do pliku konfiguracyjnego `src/main/resources/ai-prompts.yml`. To pozwala na łatwe przeglądanie i modyfikowanie treści promptów bez konieczności edycji kodu Java.
+Prompty używane przez `AiGrammarValidationService` zostały przeniesione do pliku konfiguracyjnego `src/main/resources/application.yml`. To pozwala na łatwe przeglądanie i modyfikowanie treści promptów bez konieczności edycji kodu Java.
 
 ## Struktura pliku konfiguracyjnego
 
-Plik `ai-prompts.yml` zawiera dwie główne sekcje:
+Plik `application.yml` zawiera sekcję `ai.grammar.validation` z dwoma głównymi częściami:
 
 ### 1. Main Prompt (`main-prompt`)
 Główny prompt używany do walidacji zdań. Zawiera:
@@ -24,7 +24,7 @@ Szczegółowe wyjaśnienia dla każdego tematu gramatycznego, zawierające:
 ## Jak modyfikować prompty
 
 ### Modyfikacja głównego promptu
-Edytuj sekcję `main-prompt` w pliku `ai-prompts.yml`:
+Edytuj sekcję `main-prompt` w pliku `application.yml`:
 
 ```yaml
 ai:
@@ -40,7 +40,7 @@ ai:
 ```
 
 ### Modyfikacja wyjaśnień gramatycznych
-Edytuj sekcję `grammar-explanations`:
+Edytuj sekcję `grammar-explanations` w pliku `application.yml`:
 
 ```yaml
 ai:

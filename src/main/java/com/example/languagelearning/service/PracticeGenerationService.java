@@ -81,13 +81,18 @@ public class PracticeGenerationService {
             JsonNode root = objectMapper.readTree(aiResponse);
             
             boolean isCorrect = root.has("isCorrect") && root.get("isCorrect").asBoolean(false);
-            String correctTranslation = root.has("correctTranslation") ? root.get("correctTranslation").asText() : request.getUserTranslation();
-            String feedback = root.has("feedback") ? root.get("feedback").asText() : "";
+            String aiCorrectTranslation = root.has("correctTranslation") ? root.get("correctTranslation").asText() : request.getUserTranslation();
+            String aiFeedback = root.has("feedback") ? root.get("feedback").asText() : "";
             String explanation = root.has("explanation") ? root.get("explanation").asText() : "";
-            
-            // Fallback dla poprawnych tłumaczeń
-            if (isCorrect && (correctTranslation == null || correctTranslation.isBlank())) {
+
+            String correctTranslation;
+            String feedback;
+            if (isCorrect) {
                 correctTranslation = request.getUserTranslation();
+                feedback = aiFeedback != null && !aiFeedback.isBlank() ? aiFeedback : "Tłumaczenie jest poprawne.";
+            } else {
+                correctTranslation = aiCorrectTranslation;
+                feedback = aiFeedback != null && !aiFeedback.isBlank() ? aiFeedback : "Tłumaczenie jest niepoprawne.";
             }
             
             return new TranslationVerificationResponse(isCorrect, correctTranslation, feedback, explanation);

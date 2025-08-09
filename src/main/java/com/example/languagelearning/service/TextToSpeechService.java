@@ -46,7 +46,6 @@ public class TextToSpeechService {
             log.info("Generating audio for text: '{}' in language: '{}' with voice: '{}'", text, language, voice);
             
             CreateSpeechRequest request = CreateSpeechRequest.builder()
-                    .model("tts-1")
                     .input(text)
                     .voice(voice)
                     .responseFormat("mp3")

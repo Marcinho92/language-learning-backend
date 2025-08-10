@@ -314,14 +314,13 @@ public class WordService {
             wordRepository.save(word);
             log.info("Translation check result: {}", isCorrect);
             
-            TranslationCheckResponse response = new TranslationCheckResponse();
-            response.setCorrect(isCorrect);
-            response.setCorrectTranslation(word.getTranslation());
-            response.setExampleUsage(word.getExampleUsage());
-            response.setExplanation(word.getExplanation());
-            response.setMessage(isCorrect ? "Correct!" : "Incorrect. The correct answer is: " + word.getTranslation());
-            
-            return response;
+            return new TranslationCheckResponse(
+                isCorrect,
+                word.getTranslation(),
+                word.getExampleUsage(),
+                word.getExplanation(),
+                isCorrect ? "Correct!" : "Incorrect. The correct answer is: " + word.getTranslation()
+            );
         } catch (Exception e) {
             log.error("Error checking translation for word id: {}", id, e);
             throw e;

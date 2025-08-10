@@ -41,12 +41,12 @@ public class PracticeGenerationService {
     private String buildPrompt(PracticeGenerationRequest request) {
         StringBuilder sb = new StringBuilder();
         sb.append("Wygeneruj tekst do ćwiczenia tłumaczenia dla użytkownika.");
-        sb.append(" Język tekstu: ").append(request.getSourceLanguage()).append(".");
-        sb.append(" Użytkownik ma przetłumaczyć tekst na: ").append(request.getTargetLanguage()).append(".");
-        sb.append(" Poziom trudności: ").append(request.getLevel()).append(".");
-        sb.append(" Długość tekstu: ").append(request.getSentenceCount()).append(" zdań.");
-        if (request.getTopic() != null && !request.getTopic().isBlank()) {
-            sb.append(" Temat: ").append(request.getTopic()).append(".");
+        sb.append(" Język tekstu: ").append(request.sourceLanguage()).append(".");
+        sb.append(" Użytkownik ma przetłumaczyć tekst na: ").append(request.targetLanguage()).append(".");
+        sb.append(" Poziom trudności: ").append(request.level()).append(".");
+        sb.append(" Długość tekstu: ").append(request.sentenceCount()).append(" zdań.");
+        if (request.topic() != null && !request.topic().isBlank()) {
+            sb.append(" Temat: ").append(request.topic()).append(".");
         }
         sb.append(" Tekst powinien być naturalny, spójny i odpowiedni do poziomu.");
         return sb.toString();
@@ -69,10 +69,10 @@ public class PracticeGenerationService {
             
             Oceń czy tłumaczenie jest poprawne, naturalne i oddaje sens oryginału.
             """, 
-            request.getSourceLanguage(), 
-            request.getTargetLanguage(),
-            request.getSourceText(),
-            request.getUserTranslation()
+            request.sourceLanguage(), 
+            request.targetLanguage(),
+            request.sourceText(),
+            request.userTranslation()
         );
     }
 
@@ -81,14 +81,14 @@ public class PracticeGenerationService {
             JsonNode root = objectMapper.readTree(aiResponse);
             
             boolean isCorrect = root.has("isCorrect") && root.get("isCorrect").asBoolean(false);
-            String aiCorrectTranslation = root.has("correctTranslation") ? root.get("correctTranslation").asText() : request.getUserTranslation();
+            String aiCorrectTranslation = root.has("correctTranslation") ? root.get("correctTranslation").asText() : request.userTranslation();
             String aiFeedback = root.has("feedback") ? root.get("feedback").asText() : "";
             String explanation = root.has("explanation") ? root.get("explanation").asText() : "";
 
             String correctTranslation;
             String feedback;
             if (isCorrect) {
-                correctTranslation = request.getUserTranslation();
+                correctTranslation = request.userTranslation();
                 feedback = aiFeedback != null && !aiFeedback.isBlank() ? aiFeedback : "Tłumaczenie jest poprawne.";
             } else {
                 correctTranslation = aiCorrectTranslation;

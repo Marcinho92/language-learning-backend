@@ -78,6 +78,9 @@ public class AiGrammarValidationService {
             if (isCorrect) {
                 correction = userSentence;
             }
+            
+            log.info("AI Response parsing - isCorrect: {}, correction: '{}', feedback: '{}'", 
+                    isCorrect, correction, feedback);
 
             if (explanation == null) {
                 explanation = generateGrammarExplanation(grammarTopic);

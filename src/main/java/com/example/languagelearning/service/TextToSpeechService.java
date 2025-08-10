@@ -37,6 +37,7 @@ public class TextToSpeechService {
 
     public String generateAudioBase64(String text, String language) {
         if (text == null || text.trim().isEmpty()) {
+            log.warn("Text is null or empty, cannot generate audio");
             return null;
         }
 
@@ -52,16 +53,18 @@ public class TextToSpeechService {
                     .speed(1.0)
                     .build();
 
+            log.info("Sending request to OpenAI TTS API...");
             byte[] audioBytes = openAiService.createSpeech(request).bytes();
+            log.info("Received {} bytes from OpenAI TTS API", audioBytes.length);
             
             // Convert to Base64
             String base64Audio = java.util.Base64.getEncoder().encodeToString(audioBytes);
             
-            log.info("Successfully generated audio for text: '{}'", text);
+            log.info("Successfully generated audio for text: '{}', Base64 length: {}", text, base64Audio.length());
             return base64Audio;
             
         } catch (Exception e) {
-            log.error("Error generating audio for text: {}", text, e);
+            log.error("Error generating audio for text: '{}' in language: '{}'", text, language, e);
             return null;
         }
     }

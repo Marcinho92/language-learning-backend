@@ -423,9 +423,17 @@ public class WordService {
             ? validationResult.correction() 
             : userSentence;
         
+        log.info("Text to generate audio for: '{}'", textToAudio);
+        log.info("Correction field: '{}'", validationResult.correction());
+        log.info("User sentence: '{}'", userSentence);
+        
         if (textToAudio != null && !textToAudio.trim().isEmpty()) {
             String language = word.getLanguage() != null ? word.getLanguage() : "en";
+            log.info("Word language: '{}', using language: '{}'", word.getLanguage(), language);
             audioUrl = textToSpeechService.generateAudioBase64(textToAudio, language);
+            log.info("Generated audioUrl: {}", audioUrl != null ? "SUCCESS" : "NULL");
+        } else {
+            log.warn("Text to audio is null or empty: '{}'", textToAudio);
         }
         
         return new GrammarPracticeResponse(word, grammarTopic, validationResult.isCorrect(), 

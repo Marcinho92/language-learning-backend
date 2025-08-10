@@ -417,11 +417,15 @@ public class WordService {
         
         log.info("AI validation result: {}", validationResult.isCorrect());
         
-        // Generowanie audio dla correction
+        // Generowanie audio dla poprawnego zdania (correction lub userSentence)
         String audioUrl = null;
-        if (validationResult.correction() != null && !validationResult.correction().trim().isEmpty()) {
+        String textToAudio = validationResult.correction() != null && !validationResult.correction().trim().isEmpty() 
+            ? validationResult.correction() 
+            : userSentence;
+        
+        if (textToAudio != null && !textToAudio.trim().isEmpty()) {
             String language = word.getLanguage() != null ? word.getLanguage() : "en";
-            audioUrl = textToSpeechService.generateAudioBase64(validationResult.correction(), language);
+            audioUrl = textToSpeechService.generateAudioBase64(textToAudio, language);
         }
         
         return new GrammarPracticeResponse(word, grammarTopic, validationResult.isCorrect(), 

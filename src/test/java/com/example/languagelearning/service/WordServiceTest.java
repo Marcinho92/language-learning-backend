@@ -400,11 +400,11 @@ class WordServiceTest {
         TranslationCheckResponse response = wordService.checkTranslation(1L, "cześć");
 
         // then
-        assertThat(response.isCorrect()).isTrue();
-        assertThat(response.getCorrectTranslation()).isEqualTo("cześć");
-        assertThat(response.getExampleUsage()).isEqualTo("Hello, how are you?");
-        assertThat(response.getExplanation()).isEqualTo("A greeting");
-        assertThat(response.getMessage()).isEqualTo("Correct!");
+        assertThat(response.correct()).isTrue();
+        assertThat(response.correctTranslation()).isEqualTo("cześć");
+        assertThat(response.exampleUsage()).isEqualTo("Hello, how are you?");
+        assertThat(response.explanation()).isEqualTo("A greeting");
+        assertThat(response.message()).isEqualTo("Correct!");
         assertThat(testWord.getProficiencyLevel()).isEqualTo(2);
     }
 
@@ -418,9 +418,9 @@ class WordServiceTest {
         TranslationCheckResponse response = wordService.checkTranslation(1L, "wrong");
 
         // then
-        assertThat(response.isCorrect()).isFalse();
-        assertThat(response.getCorrectTranslation()).isEqualTo("cześć");
-        assertThat(response.getMessage()).isEqualTo("Incorrect. The correct answer is: cześć");
+        assertThat(response.correct()).isFalse();
+        assertThat(response.correctTranslation()).isEqualTo("cześć");
+        assertThat(response.message()).isEqualTo("Incorrect. The correct answer is: cześć");
         assertThat(testWord.getProficiencyLevel()).isEqualTo(1);
     }
 
@@ -434,7 +434,7 @@ class WordServiceTest {
         TranslationCheckResponse response = wordService.checkTranslation(1L, "CZEŚĆ");
 
         // then
-        assertThat(response.isCorrect()).isTrue();
+        assertThat(response.correct()).isTrue();
     }
 
     @Test
@@ -447,7 +447,7 @@ class WordServiceTest {
         TranslationCheckResponse response = wordService.checkTranslation(1L, "  cześć  ");
 
         // then
-        assertThat(response.isCorrect()).isTrue();
+        assertThat(response.correct()).isTrue();
     }
 
     @Test

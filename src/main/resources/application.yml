@@ -55,27 +55,32 @@ ai:
         }
         
         CRITICAL RULES:
-        1. The sentence MUST contain the required word (either original or translation)
-        2. The sentence MUST demonstrate the specific grammar topic structure
-        3. If the sentence does not use the required grammar topic, it is INCORRECT regardless of other grammar
-        4. A sentence using Present Simple when Third Conditional is required is WRONG
-        5. A sentence using Past Simple when Present Perfect is required is WRONG
+        1. The sentence MUST demonstrate the specific grammar topic structure FIRST
+        2. The sentence MUST contain the required word (either original or translation)
+        3. If the sentence does not use the required grammar topic, it is ALWAYS INCORRECT
+        4. Grammar topic validation takes PRIORITY over word usage
+        5. A sentence using Present Simple when Third Conditional is required is WRONG
+        6. A sentence using Present Continuous when Second Conditional is required is WRONG
+        7. A sentence using Past Simple when Present Perfect is required is WRONG
         
-        Validation Process:
-        1. First, check if the required word is present
-        2. Second, check if the sentence uses the required grammar topic structure
-        3. Only if both conditions are met, check for other grammar correctness
+        VALIDATION PROCESS (ORDER MATTERS):
+        1. FIRST: Check if the sentence uses the required grammar topic structure
+        2. SECOND: Only if grammar topic is correct, check if the required word is present
+        3. THIRD: Only if both conditions are met, check for other grammar correctness
         4. If the grammar topic is wrong, mark as incorrect and provide correction using the required topic
         
         Examples of what makes a sentence INCORRECT:
         - Topic: "Third Conditional" but sentence: "I like coffee" (Present Simple) → WRONG
         - Topic: "Present Perfect" but sentence: "I went to school" (Past Simple) → WRONG
         - Topic: "First Conditional" but sentence: "I will go home" (Future Simple) → WRONG
+        - Topic: "Second Conditional" but sentence: "The computer is running slow" (Present Continuous) → WRONG
+        - Topic: "Second Conditional" but sentence: "I am working hard" (Present Continuous) → WRONG
         
         Examples of what makes a sentence CORRECT:
         - Topic: "Third Conditional" and sentence: "If I had studied, I would have passed" → CORRECT
         - Topic: "Present Perfect" and sentence: "I have finished my work" → CORRECT
         - Topic: "First Conditional" and sentence: "If it rains, I will stay home" → CORRECT
+        - Topic: "Second Conditional" and sentence: "If I had money, I would buy a car" → CORRECT
         
         Grammar topics and their rules:
         - Present Simple: Subject + base verb (add 's' for 3rd person singular)
@@ -94,10 +99,18 @@ ai:
         - Relative Clauses: Noun + relative pronoun + clause
         - Reported Speech: Subject + reporting verb + that + reported clause
         
+        CRITICAL VALIDATION CHECKLIST:
+        Before marking a sentence as correct, verify:
+        □ Does the sentence use the EXACT grammar topic structure required?
+        □ Does the sentence contain the required word?
+        □ Is the grammar topic validation the FIRST priority?
+        
         IMPORTANT: 
         - If the sentence does not use the required grammar topic, it is ALWAYS incorrect
+        - Grammar topic validation takes ABSOLUTE PRIORITY over word usage
         - The correction must use the required grammar topic
         - Do not accept sentences that ignore the grammar topic requirement
+        - Present Continuous ≠ Second Conditional (these are completely different structures)
         
         Respond only with valid JSON.
       

@@ -10,13 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/practice")
-@CrossOrigin(origins = {
-    "http://localhost:3000", 
-    "https://language-learning-frontend.railway.app",
-    "https://language-learning-frontend-production.up.railway.app",
-    "https://www.langlearn.top",
-    "https://langlearn.top"
-})
 public class PracticeController {
     private final PracticeGenerationService practiceGenerationService;
 

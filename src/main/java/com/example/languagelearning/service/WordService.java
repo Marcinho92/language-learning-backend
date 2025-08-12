@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +44,7 @@ public class WordService {
         try {
             // Create a string with the CSV content first
             StringBuilder csvContent = new StringBuilder();
-            
+
             // Add headers
             csvContent.append(String.join(",", CSV_HEADERS)).append("\n");
 
@@ -60,9 +62,9 @@ public class WordService {
 
             // Convert to bytes using UTF-16LE encoding
             byte[] contentBytes = csvContent.toString().getBytes(StandardCharsets.UTF_16LE);
-            
+
             // Add UTF-16LE BOM (FF FE)
-            byte[] bom = new byte[] { (byte)0xFF, (byte)0xFE };
+            byte[] bom = new byte[]{(byte) 0xFF, (byte) 0xFE};
             byte[] result = new byte[bom.length + contentBytes.length];
             System.arraycopy(bom, 0, result, 0, bom.length);
             System.arraycopy(contentBytes, 0, result, bom.length, contentBytes.length);
@@ -98,7 +100,7 @@ public class WordService {
                     word.setTranslation(data[1].trim());
                     word.setLanguage(data[2].trim());
                     word.setProficiencyLevel(Integer.parseInt(data[3].trim()));
-                    
+
                     // Handle optional fields
                     if (data.length > 4) {
                         word.setExampleUsage(data[4].trim());
@@ -106,7 +108,7 @@ public class WordService {
                     if (data.length > 5) {
                         word.setExplanation(data[5].trim());
                     }
-                    
+
                     wordsToSave.add(word);
                 } else {
                     log.warn("Invalid CSV line format: {}", line);
@@ -313,13 +315,13 @@ public class WordService {
 
             wordRepository.save(word);
             log.info("Translation check result: {}", isCorrect);
-            
+
             return new TranslationCheckResponse(
-                isCorrect,
-                word.getTranslation(),
-                word.getExampleUsage(),
-                word.getExplanation(),
-                isCorrect ? "Correct!" : "Incorrect. The correct answer is: " + word.getTranslation()
+                    isCorrect,
+                    word.getTranslation(),
+                    word.getExampleUsage(),
+                    word.getExplanation(),
+                    isCorrect ? "Correct!" : "Incorrect. The correct answer is: " + word.getTranslation()
             );
         } catch (Exception e) {
             log.error("Error checking translation for word id: {}", id, e);
@@ -364,30 +366,30 @@ public class WordService {
 
     // Grammar Practice Methods
     private static final String[] GRAMMAR_TOPICS = {
-        "Present Simple", "Present Continuous", "Past Simple", "Past Continuous",
-        "Present Perfect", "Past Perfect", "Future Simple", "First Conditional",
-        "Second Conditional", "Third Conditional", "Passive Voice", "Reported Speech",
-        "Modal Verbs", "Gerunds and Infinitives", "Relative Clauses"
+            "Present Simple", "Present Continuous", "Past Simple", "Past Continuous",
+            "Present Perfect", "Past Perfect", "Future Simple", "First Conditional",
+            "Second Conditional", "Third Conditional", "Passive Voice", "Reported Speech",
+            "Modal Verbs", "Gerunds and Infinitives", "Relative Clauses"
     };
 
     @Transactional(readOnly = true)
     public GrammarPracticeResponse getRandomGrammarPractice() {
         log.info("Getting random grammar practice");
-        
+
         // Get random word
         Word randomWord = getRandomWord(null);
         if (randomWord == null) {
             throw new RuntimeException("No words available for grammar practice");
         }
-        
+
         // Get random grammar topic
         String grammarTopic = GRAMMAR_TOPICS[random.nextInt(GRAMMAR_TOPICS.length)];
-        
+
         log.info("Selected word: {} with grammar topic: {}", randomWord.getOriginalWord(), grammarTopic);
-        
+
         // Generate explanation for the grammar topic
         String explanation = generateGrammarExplanation(grammarTopic);
-        
+
         return new GrammarPracticeResponse(randomWord, grammarTopic, false, null, null, explanation, null);
     }
 
@@ -405,28 +407,28 @@ public class WordService {
     @Transactional(readOnly = true)
     public GrammarPracticeResponse validateGrammarPractice(Long wordId, String userSentence, String grammarTopic) {
         log.info("Validating grammar practice for wordId: {}, sentence: {}, topic: {}", wordId, userSentence, grammarTopic);
-        
+
         Word word = getWord(wordId);
         if (word == null) {
             throw new EntityNotFoundException("Word not found with id: " + wordId);
         }
-        
+
         // Use AI validation service
-        AiGrammarValidationService.GrammarValidationResult validationResult = 
-            aiValidationService.validateSentence(userSentence, word, grammarTopic);
-        
+        AiGrammarValidationService.GrammarValidationResult validationResult =
+                aiValidationService.validateSentence(userSentence, word, grammarTopic);
+
         log.info("AI validation result: {}", validationResult.isCorrect());
-        
+
         // Generowanie audio dla poprawnego zdania (correction lub userSentence)
         String audioUrl = null;
-        String textToAudio = validationResult.correction() != null && !validationResult.correction().trim().isEmpty() 
-            ? validationResult.correction() 
-            : userSentence;
-        
+        String textToAudio = validationResult.correction() != null && !validationResult.correction().trim().isEmpty()
+                ? validationResult.correction()
+                : userSentence;
+
         log.info("Text to generate audio for: '{}'", textToAudio);
         log.info("Correction field: '{}'", validationResult.correction());
         log.info("User sentence: '{}'", userSentence);
-        
+
         if (textToAudio != null && !textToAudio.trim().isEmpty()) {
             String language = word.getLanguage() != null ? word.getLanguage() : "en";
             log.info("Word language: '{}', using language: '{}'", word.getLanguage(), language);
@@ -435,139 +437,155 @@ public class WordService {
         } else {
             log.warn("Text to audio is null or empty: '{}'", textToAudio);
         }
-        
-        return new GrammarPracticeResponse(word, grammarTopic, validationResult.isCorrect(), 
-            validationResult.feedback(), validationResult.correction(), validationResult.explanation(), audioUrl);
+
+        return new GrammarPracticeResponse(word, grammarTopic, validationResult.isCorrect(),
+                validationResult.feedback(), validationResult.correction(), validationResult.explanation(), audioUrl);
     }
-    
+
     private String generateGrammarExplanation(String grammarTopic) {
-        switch (grammarTopic.toLowerCase()) {
-            case "present simple":
-                return "Present Simple is used for habits, routines, and general truths.\n\n" +
-                       "Structure: Subject + base verb (add 's' for 3rd person singular)\n" +
-                       "Examples:\n" +
-                       "• I work every day.\n" +
-                       "• She works in an office.\n" +
-                       "• They like coffee.\n" +
-                       "• He doesn't like tea.";
-            case "present continuous":
-                return "Present Continuous is used for actions happening now or around now.\n\n" +
-                       "Structure: Subject + be (am/is/are) + verb + ing\n" +
-                       "Examples:\n" +
-                       "• I am working now.\n" +
-                       "• She is reading a book.\n" +
-                       "• They are studying English.\n" +
-                       "• We are not sleeping.";
-            case "present perfect":
-                return "Present Perfect is used for actions that started in the past and continue to the present.\n\n" +
-                       "Structure: Subject + have/has + past participle\n" +
-                       "Examples:\n" +
-                       "• I have worked here for 5 years.\n" +
-                       "• She has finished her homework.\n" +
-                       "• They have never been to Paris.\n" +
-                       "• We haven't seen that movie.";
-            case "past simple":
-                return "Past Simple is used for completed actions in the past.\n\n" +
-                       "Structure: Subject + past form of verb (regular: +ed, irregular: special form)\n" +
-                       "Examples:\n" +
-                       "• I worked yesterday.\n" +
-                       "• She went to the store.\n" +
-                       "• They studied all night.\n" +
-                       "• He didn't like the movie.";
-            case "past perfect":
-                return "Past Perfect is used for actions that happened before another past action.\n\n" +
-                       "Structure: Subject + had + past participle\n" +
-                       "Examples:\n" +
-                       "• I had finished my work before she arrived.\n" +
-                       "• She had already eaten when I called.\n" +
-                       "• They had never seen such a beautiful sunset.\n" +
-                       "• We hadn't met before the party.";
-            case "future simple":
-                return "Future Simple is used for predictions and spontaneous decisions.\n\n" +
-                       "Structure: Subject + will + base verb\n" +
-                       "Examples:\n" +
-                       "• I will help you with that.\n" +
-                       "• She will be here tomorrow.\n" +
-                       "• They will probably come to the party.\n" +
-                       "• We won't be late.";
-            case "first conditional":
-                return "First Conditional is used for real possibilities in the future.\n\n" +
-                       "Structure: If + present simple, will + base verb\n" +
-                       "Examples:\n" +
-                       "• If it rains, I will stay home.\n" +
-                       "• If you study hard, you will pass the exam.\n" +
-                       "• She will be happy if you call her.\n" +
-                       "• We will go to the beach if the weather is nice.";
-            case "second conditional":
-                return "Second Conditional is used for unreal or hypothetical situations.\n\n" +
-                       "Structure: If + past simple, would + base verb\n" +
-                       "Examples:\n" +
-                       "• If I had money, I would buy a car.\n" +
-                       "• If you studied more, you would get better grades.\n" +
-                       "• She would travel the world if she could.\n" +
-                       "• We would be rich if we won the lottery.";
-            case "passive voice":
-                return "Passive Voice is used when the focus is on the action, not the doer.\n\n" +
-                       "Structure: Subject + be + past participle (+ by + agent)\n" +
-                       "Examples:\n" +
-                       "• The book was written by Shakespeare.\n" +
-                       "• The house is being built.\n" +
-                       "• The letter has been sent.\n" +
-                       "• The car was stolen last night.";
-            case "modal verbs":
-                return "Modal Verbs express ability, possibility, permission, obligation, and advice.\n\n" +
-                       "Structure: Subject + modal verb + base verb\n" +
-                       "Common modal verbs: can, could, may, might, must, shall, should, will, would\n" +
-                       "Examples:\n" +
-                       "• I can speak English.\n" +
-                       "• You should study harder.\n" +
-                       "• She must finish her work.\n" +
-                       "• They might come to the party.\n" +
-                       "• We could help you with that.";
-            case "gerunds and infinitives":
-                return "Gerunds and Infinitives are verb forms used as nouns.\n\n" +
-                       "Gerund Structure: verb + ing (used as subject, object, after prepositions)\n" +
-                       "Infinitive Structure: to + base verb (used after certain verbs, adjectives)\n" +
-                       "Examples:\n" +
-                       "• I enjoy reading books. (gerund)\n" +
-                       "• She wants to learn English. (infinitive)\n" +
-                       "• Swimming is good exercise. (gerund as subject)\n" +
-                       "• It's important to study regularly. (infinitive)";
-            case "relative clauses":
-                return "Relative Clauses provide additional information about a noun.\n\n" +
-                       "Structure: Noun + relative pronoun (who, which, that, where, when) + clause\n" +
-                       "Examples:\n" +
-                       "• The man who lives next door is a doctor.\n" +
-                       "• The book that I bought is very interesting.\n" +
-                       "• The place where I grew up is beautiful.\n" +
-                       "• The time when we met was perfect.";
-            case "reported speech":
-                return "Reported Speech is used to report what someone said.\n\n" +
-                       "Structure: Subject + reporting verb + that + reported clause (tense changes)\n" +
-                       "Examples:\n" +
-                       "• She said that she was tired.\n" +
-                       "• He told me that he would come.\n" +
-                       "• They mentioned that they had finished.\n" +
-                       "• I asked if she could help.";
-            case "past continuous":
-                return "Past Continuous is used for actions that were in progress at a specific time in the past.\n\n" +
-                       "Structure: Subject + was/were + verb + ing\n" +
-                       "Examples:\n" +
-                       "• I was working when you called.\n" +
-                       "• She was reading a book at 8 PM.\n" +
-                       "• They were studying all night.\n" +
-                       "• We were not sleeping during the storm.";
-            case "third conditional":
-                return "Third Conditional is used for unreal situations in the past.\n\n" +
-                       "Structure: If + past perfect, would have + past participle\n" +
-                       "Examples:\n" +
-                       "• If I had studied harder, I would have passed the exam.\n" +
-                       "• If she had known, she would have told us.\n" +
-                       "• They would have won if they had played better.\n" +
-                       "• We would have been rich if we had invested earlier.";
-            default:
-                return "Practice using this grammar structure in your sentences.\n\n" +
-                       "Make sure to use the given word in your sentence and apply the grammar topic correctly.";
-        }
+        return switch (grammarTopic.toLowerCase()) {
+            case "present simple" -> """
+                    Present Simple is used for habits, routines, and general truths.
+                    
+                    Structure: Subject + base verb (add 's' for 3rd person singular)
+                    Examples:
+                    • I work every day.
+                    • She works in an office.
+                    • They like coffee.
+                    • He doesn't like tea.""";
+            case "present continuous" -> """
+                    Present Continuous is used for actions happening now or around now.
+                    
+                    Structure: Subject + be (am/is/are) + verb + ing
+                    Examples:
+                    • I am working now.
+                    • She is reading a book.
+                    • They are studying English.
+                    • We are not sleeping.""";
+            case "present perfect" -> """
+                    Present Perfect is used for actions that started in the past and continue to the present.
+                    
+                    Structure: Subject + have/has + past participle
+                    Examples:
+                    • I have worked here for 5 years.
+                    • She has finished her homework.
+                    • They have never been to Paris.
+                    • We haven't seen that movie.""";
+            case "past simple" -> """
+                    Past Simple is used for completed actions in the past.
+                    
+                    Structure: Subject + past form of verb (regular: +ed, irregular: special form)
+                    Examples:
+                    • I worked yesterday.
+                    • She went to the store.
+                    • They studied all night.
+                    • He didn't like the movie.""";
+            case "past perfect" -> """
+                    Past Perfect is used for actions that happened before another past action.
+                    
+                    Structure: Subject + had + past participle
+                    Examples:
+                    • I had finished my work before she arrived.
+                    • She had already eaten when I called.
+                    • They had never seen such a beautiful sunset.
+                    • We hadn't met before the party.""";
+            case "future simple" -> """
+                    Future Simple is used for predictions and spontaneous decisions.
+                    
+                    Structure: Subject + will + base verb
+                    Examples:
+                    • I will help you with that.
+                    • She will be here tomorrow.
+                    • They will probably come to the party.
+                    • We won't be late.""";
+            case "first conditional" -> """
+                    First Conditional is used for real possibilities in the future.
+                    
+                    Structure: If + present simple, will + base verb
+                    Examples:
+                    • If it rains, I will stay home.
+                    • If you study hard, you will pass the exam.
+                    • She will be happy if you call her.
+                    • We will go to the beach if the weather is nice.""";
+            case "second conditional" -> """
+                    Second Conditional is used for unreal or hypothetical situations.
+                    
+                    Structure: If + past simple, would + base verb
+                    Examples:
+                    • If I had money, I would buy a car.
+                    • If you studied more, you would get better grades.
+                    • She would travel the world if she could.
+                    • We would be rich if we won the lottery.""";
+            case "passive voice" -> """
+                    Passive Voice is used when the focus is on the action, not the doer.
+                    
+                    Structure: Subject + be + past participle (+ by + agent)
+                    Examples:
+                    • The book was written by Shakespeare.
+                    • The house is being built.
+                    • The letter has been sent.
+                    • The car was stolen last night.""";
+            case "modal verbs" -> """
+                    Modal Verbs express ability, possibility, permission, obligation, and advice.
+                    
+                    Structure: Subject + modal verb + base verb
+                    Common modal verbs: can, could, may, might, must, shall, should, will, would
+                    Examples:
+                    • I can speak English.
+                    • You should study harder.
+                    • She must finish her work.
+                    • They might come to the party.
+                    • We could help you with that.""";
+            case "gerunds and infinitives" -> """
+                    Gerunds and Infinitives are verb forms used as nouns.
+                    
+                    Gerund Structure: verb + ing (used as subject, object, after prepositions)
+                    Infinitive Structure: to + base verb (used after certain verbs, adjectives)
+                    Examples:
+                    • I enjoy reading books. (gerund)
+                    • She wants to learn English. (infinitive)
+                    • Swimming is good exercise. (gerund as subject)
+                    • It's important to study regularly. (infinitive)""";
+            case "relative clauses" -> """
+                    Relative Clauses provide additional information about a noun.
+                    
+                    Structure: Noun + relative pronoun (who, which, that, where, when) + clause
+                    Examples:
+                    • The man who lives next door is a doctor.
+                    • The book that I bought is very interesting.
+                    • The place where I grew up is beautiful.
+                    • The time when we met was perfect.""";
+            case "reported speech" -> """
+                    Reported Speech is used to report what someone said.
+                    
+                    Structure: Subject + reporting verb + that + reported clause (tense changes)
+                    Examples:
+                    • She said that she was tired.
+                    • He told me that he would come.
+                    • They mentioned that they had finished.
+                    • I asked if she could help.""";
+            case "past continuous" -> """
+                    Past Continuous is used for actions that were in progress at a specific time in the past.
+                    
+                    Structure: Subject + was/were + verb + ing
+                    Examples:
+                    • I was working when you called.
+                    • She was reading a book at 8 PM.
+                    • They were studying all night.
+                    • We were not sleeping during the storm.""";
+            case "third conditional" -> """
+                    Third Conditional is used for unreal situations in the past.
+                    
+                    Structure: If + past perfect, would have + past participle
+                    Examples:
+                    • If I had studied harder, I would have passed the exam.
+                    • If she had known, she would have told us.
+                    • They would have won if they had played better.
+                    • We would have been rich if we had invested earlier.""";
+            default -> """
+                    Practice using this grammar structure in your sentences.
+                    
+                    Make sure to use the given word in your sentence and apply the grammar topic correctly.""";
+        };
     }
 } 

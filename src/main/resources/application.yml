@@ -36,6 +36,14 @@ logging:
     com.example.languagelearning.service.AiGrammarValidationService: DEBUG
     com.example.languagelearning.config.AiPromptsConfig: DEBUG
 
+cors:
+  allowed-origins:
+    - "http://localhost:3000"
+    - "https://language-learning-frontend.railway.app"
+    - "https://language-learning-frontend-production.up.railway.app"
+    - "https://www.langlearn.top"
+    - "https://langlearn.top"
+
 ai:
   grammar:
     validation:

@@ -14,17 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElseGet;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/words")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {
-    "http://localhost:3000", 
-    "https://language-learning-frontend.railway.app",
-    "https://language-learning-frontend-production.up.railway.app",
-    "https://www.langlearn.top",
-    "https://langlearn.top"
-})
 public class WordController {
     private final WordService wordService;
 
@@ -66,13 +62,10 @@ public class WordController {
     public ResponseEntity<Object> getRandomWord(
             @RequestParam(required = false) String language) {
         Word randomWord = wordService.getRandomWord(language);
-        if (randomWord == null) {
-            return ResponseEntity.ok(Map.of(
+        return ResponseEntity.ok(requireNonNullElseGet(randomWord, () -> Map.of(
                 "message", "Baza słów jest pusta. Dodaj słowa, aby rozpocząć naukę.",
                 "isEmpty", true
-            ));
-        }
-        return ResponseEntity.ok(randomWord);
+        )));
     }
 
     @PostMapping("/{id}/check")
@@ -96,7 +89,7 @@ public class WordController {
     public ResponseEntity<Void> importFromCsv(@RequestParam("file") MultipartFile file) {
         log.info("Received request to import words from CSV file: {}", file.getOriginalFilename());
         try {
-            if (!file.getOriginalFilename().toLowerCase().endsWith(".csv")) {
+            if (!requireNonNull(file.getOriginalFilename()).toLowerCase().endsWith(".csv")) {
                 throw new IllegalArgumentException("Only CSV files are supported");
             }
 
@@ -116,9 +109,9 @@ public class WordController {
             List<Word> importedWords = wordService.bulkImport(words);
             log.info("Successfully bulk imported {} words", importedWords.size());
             return ResponseEntity.ok(Map.of(
-                "message", "Successfully imported " + importedWords.size() + " words",
-                "importedCount", importedWords.size(),
-                "words", importedWords
+                    "message", "Successfully imported " + importedWords.size() + " words",
+                    "importedCount", importedWords.size(),
+                    "words", importedWords
             ));
         } catch (Exception e) {
             log.error("Error bulk importing words", e);
@@ -133,8 +126,8 @@ public class WordController {
             int deletedCount = wordService.bulkDelete(wordIds);
             log.info("Successfully bulk deleted {} words", deletedCount);
             return ResponseEntity.ok(Map.of(
-                "message", "Successfully deleted " + deletedCount + " words",
-                "deletedCount", deletedCount
+                    "message", "Successfully deleted " + deletedCount + " words",
+                    "deletedCount", deletedCount
             ));
         } catch (Exception e) {
             log.error("Error bulk deleting words", e);
@@ -148,7 +141,7 @@ public class WordController {
         log.info("Received request for random grammar practice");
         try {
             GrammarPracticeResponse response = wordService.getRandomGrammarPractice();
-            log.info("Successfully generated grammar practice with word: {} and topic: {}", 
+            log.info("Successfully generated grammar practice with word: {} and topic: {}",
                     response.getWord().getOriginalWord(), response.getGrammarTopic());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -165,7 +158,7 @@ public class WordController {
             Long wordId = Long.valueOf(request.get("wordId").toString());
             String userSentence = (String) request.get("userSentence");
             String grammarTopic = (String) request.get("grammarTopic");
-            
+
             GrammarPracticeResponse response = wordService.validateGrammarPractice(wordId, userSentence, grammarTopic);
             log.info("Successfully validated grammar practice. Result: {}", response.isCorrect());
             return ResponseEntity.ok(response);
@@ -182,11 +175,11 @@ public class WordController {
         try {
             String text = request.get("text");
             String language = request.get("language");
-            
+
             if (text == null || text.trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Text is required"));
             }
-            
+
             String audioBase64 = wordService.generateAudio(text, language);
             return ResponseEntity.ok(Map.of("audioBase64", audioBase64));
         } catch (Exception e) {

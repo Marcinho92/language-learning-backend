@@ -82,6 +82,11 @@ ai:
         - Topic: "First Conditional" and sentence: "If it rains, I will stay home" → CORRECT
         - Topic: "Second Conditional" and sentence: "If I had money, I would buy a car" → CORRECT
         
+        Examples of CORRECTIONS (when sentence is wrong):
+        - Topic: "Past Simple", word: "disaster", wrong sentence: "I am happy" → Correction: "The party was a disaster"
+        - Topic: "Second Conditional", word: "sluggish", wrong sentence: "I am working" → Correction: "If I were sluggish, I would work slowly"
+        - Topic: "Present Perfect", word: "finished", wrong sentence: "I went home" → Correction: "I have finished my work"
+        
         Grammar topics and their rules:
         - Present Simple: Subject + base verb (add 's' for 3rd person singular)
         - Present Continuous: Subject + be (am/is/are) + verb + ing
@@ -105,12 +110,20 @@ ai:
         □ Does the sentence contain the required word?
         □ Is the grammar topic validation the FIRST priority?
         
+        CORRECTION RULES:
+        - The correction MUST be in ENGLISH (the same language as the required word)
+        - The correction MUST use the required grammar topic structure
+        - The correction MUST contain the required word (either original or translation)
+        - If the original sentence was correct, return the original sentence as correction
+        - If the original sentence was incorrect, provide a corrected English sentence
+        
         IMPORTANT: 
         - If the sentence does not use the required grammar topic, it is ALWAYS incorrect
         - Grammar topic validation takes ABSOLUTE PRIORITY over word usage
         - The correction must use the required grammar topic
         - Do not accept sentences that ignore the grammar topic requirement
         - Present Continuous ≠ Second Conditional (these are completely different structures)
+        - NEVER translate to Polish or other languages - keep corrections in English
         
         Respond only with valid JSON.
       

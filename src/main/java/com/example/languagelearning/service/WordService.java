@@ -40,7 +40,6 @@ public class WordService {
 
     @Transactional(readOnly = true)
     public byte[] exportToCsv() {
-        log.info("Starting CSV export");
         List<Word> words = getAllWords();
 
         try {
@@ -187,10 +186,6 @@ public class WordService {
             List<Word> words = query.getResultList();
             if (words.isEmpty()) {
                 log.warn("No words found in database!");
-            } else {
-                for (Word word : words) {
-                    log.info("Word found: {}", word);
-                }
             }
             return words;
         } catch (Exception e) {

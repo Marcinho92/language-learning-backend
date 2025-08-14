@@ -1,6 +1,5 @@
 package com.example.languagelearning.config;
 
-import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -13,14 +12,6 @@ import java.util.Map;
 @Component
 @ConfigurationProperties(prefix = "ai.grammar.validation")
 public class AiPromptsConfig {
-
-    @PostConstruct
-    public void init() {
-        log.info("AiPromptsConfig initialized with mainPrompt length: {}",
-                mainPrompt != null ? mainPrompt.length() : "null");
-        log.info("AiPromptsConfig initialized with grammarExplanations size: {}",
-                grammarExplanations != null ? grammarExplanations.size() : "null");
-    }
 
     private String mainPrompt;
     private Map<String, String> grammarExplanations;

@@ -85,14 +85,12 @@ public class WordController {
 
     @PostMapping("/import")
     public ResponseEntity<Void> importFromCsv(@RequestParam("file") MultipartFile file) {
-        log.info("Received request to import words from CSV file: {}", file.getOriginalFilename());
         try {
             if (!requireNonNull(file.getOriginalFilename()).toLowerCase().endsWith(".csv")) {
                 throw new IllegalArgumentException("Only CSV files are supported");
             }
 
             wordService.importFromCsv(file);
-            log.info("Successfully imported words from CSV file");
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error("Error importing words from CSV", e);
@@ -102,10 +100,8 @@ public class WordController {
 
     @PostMapping("/bulk")
     public ResponseEntity<Map<String, Object>> bulkImport(@RequestBody List<Word> words) {
-        log.info("Received request to bulk import {} words", words.size());
         try {
             List<Word> importedWords = wordService.bulkImport(words);
-            log.info("Successfully bulk imported {} words", importedWords.size());
             return ResponseEntity.ok(Map.of(
                     "message", "Successfully imported " + importedWords.size() + " words",
                     "importedCount", importedWords.size(),

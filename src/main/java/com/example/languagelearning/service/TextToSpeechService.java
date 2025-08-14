@@ -10,6 +10,8 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Base64.getEncoder;
+
 @Slf4j
 @Service
 public class TextToSpeechService {
@@ -42,9 +44,6 @@ public class TextToSpeechService {
 
         try {
             String voice = languageToVoiceMap.getOrDefault(language.toLowerCase(), "alloy");
-
-            log.info("Generating audio for text: '{}' in language: '{}' with voice: '{}'", text, language, voice);
-
             CreateSpeechRequest request = CreateSpeechRequest.builder()
                     .model("tts-1")
                     .input(text)
@@ -53,16 +52,8 @@ public class TextToSpeechService {
                     .speed(1.0)
                     .build();
 
-            log.info("Sending request to OpenAI TTS API...");
             byte[] audioBytes = openAiService.createSpeech(request).bytes();
-            log.info("Received {} bytes from OpenAI TTS API", audioBytes.length);
-
-            // Convert to Base64
-            String base64Audio = java.util.Base64.getEncoder().encodeToString(audioBytes);
-
-            log.info("Successfully generated audio for text: '{}', Base64 length: {}", text, base64Audio.length());
-            return base64Audio;
-
+            return getEncoder().encodeToString(audioBytes);
         } catch (Exception e) {
             log.error("Error generating audio for text: '{}' in language: '{}'", text, language, e);
             return null;

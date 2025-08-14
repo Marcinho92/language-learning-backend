@@ -22,12 +22,9 @@ public class AiGrammarValidationService {
     public AiGrammarValidationService(ChatClient.Builder chatClientBuilder, AiPromptsConfig promptsConfig) {
         this.chatClient = chatClientBuilder.build();
         this.promptsConfig = promptsConfig;
-        log.info("AiGrammarValidationService initialized with promptsConfig: {}", promptsConfig);
     }
 
     public GrammarValidationResult validateSentence(String userSentence, Word word, String grammarTopic) {
-        log.info("Validating sentence: '{}' for word: '{}' with grammar topic: '{}'", userSentence, word.getOriginalWord(), grammarTopic);
-
         try {
             String prompt = buildValidationPrompt(userSentence, word, grammarTopic);
 
@@ -78,9 +75,6 @@ public class AiGrammarValidationService {
             if (isCorrect) {
                 correction = userSentence;
             }
-            
-            log.info("AI Response parsing - isCorrect: {}, correction: '{}', feedback: '{}'", 
-                    isCorrect, correction, feedback);
 
             if (explanation == null) {
                 explanation = generateGrammarExplanation(grammarTopic);

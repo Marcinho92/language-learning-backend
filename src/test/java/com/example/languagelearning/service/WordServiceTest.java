@@ -235,12 +235,12 @@ class WordServiceTest {
     }
 
     @Test
-    void getWord_shouldReturnWord() {
+    void createWord_shouldReturnWord() {
         // given
         when(wordRepository.findById(1L)).thenReturn(Optional.of(testWord));
 
         // when
-        Word result = wordService.getWord(1L);
+        Word result = wordService.createWord(1L);
 
         // then
         assertThat(result).isEqualTo(testWord);
@@ -248,12 +248,12 @@ class WordServiceTest {
     }
 
     @Test
-    void getWord_shouldThrowExceptionWhenNotFound() {
+    void createWord_shouldThrowExceptionWhenNotFound() {
         // given
         when(wordRepository.findById(999L)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> wordService.getWord(999L))
+        assertThatThrownBy(() -> wordService.createWord(999L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Word not found with id: 999");
     }

@@ -31,15 +31,13 @@ public class WordController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Word> getWord(@PathVariable Long id) {
-        return ResponseEntity.ok(wordService.getWord(id));
+        return ResponseEntity.ok(wordService.createWord(id));
     }
 
     @PostMapping
     public ResponseEntity<Word> createWord(@Valid @RequestBody Word word) {
-        log.info("Received request to create word: {}", word);
         try {
             Word createdWord = wordService.createWord(word);
-            log.info("Successfully created word with ID: {}", createdWord.getId());
             return ResponseEntity.ok(createdWord);
         } catch (Exception e) {
             log.error("Error creating word: {}", word, e);
@@ -121,10 +119,8 @@ public class WordController {
 
     @DeleteMapping("/bulk")
     public ResponseEntity<Map<String, Object>> bulkDelete(@RequestBody List<Long> wordIds) {
-        log.info("Received request to bulk delete {} words", wordIds.size());
         try {
             int deletedCount = wordService.bulkDelete(wordIds);
-            log.info("Successfully bulk deleted {} words", deletedCount);
             return ResponseEntity.ok(Map.of(
                     "message", "Successfully deleted " + deletedCount + " words",
                     "deletedCount", deletedCount
@@ -138,11 +134,8 @@ public class WordController {
     // Grammar Practice Endpoints
     @GetMapping("/grammar-practice")
     public ResponseEntity<GrammarPracticeResponse> getRandomGrammarPractice() {
-        log.info("Received request for random grammar practice");
         try {
             GrammarPracticeResponse response = wordService.getRandomGrammarPractice();
-            log.info("Successfully generated grammar practice with word: {} and topic: {}",
-                    response.getWord().getOriginalWord(), response.getGrammarTopic());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error generating grammar practice", e);
@@ -153,14 +146,12 @@ public class WordController {
     @PostMapping("/grammar-practice/validate")
     public ResponseEntity<GrammarPracticeResponse> validateGrammarPractice(
             @RequestBody Map<String, Object> request) {
-        log.info("Received request to validate grammar practice");
         try {
             Long wordId = Long.valueOf(request.get("wordId").toString());
             String userSentence = (String) request.get("userSentence");
             String grammarTopic = (String) request.get("grammarTopic");
 
             GrammarPracticeResponse response = wordService.validateGrammarPractice(wordId, userSentence, grammarTopic);
-            log.info("Successfully validated grammar practice. Result: {}", response.isCorrect());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error validating grammar practice", e);
@@ -171,7 +162,6 @@ public class WordController {
     @PostMapping("/grammar-practice/audio")
     public ResponseEntity<Map<String, String>> generateAudio(
             @RequestBody Map<String, String> request) {
-        log.info("Received request to generate audio");
         try {
             String text = request.get("text");
             String language = request.get("language");

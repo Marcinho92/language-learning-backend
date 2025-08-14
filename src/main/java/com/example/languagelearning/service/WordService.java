@@ -10,6 +10,8 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,7 +71,6 @@ public class WordService {
             System.arraycopy(bom, 0, result, 0, bom.length);
             System.arraycopy(contentBytes, 0, result, bom.length, contentBytes.length);
 
-            log.info("Successfully exported {} words to CSV with UTF-16LE encoding", words.size());
             return result;
         } catch (Exception e) {
             log.error("Error exporting words to CSV", e);
@@ -79,7 +80,6 @@ public class WordService {
 
     @Transactional
     public void importFromCsv(MultipartFile file) {
-        log.info("Starting CSV import from file: {}", file.getOriginalFilename());
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
 
@@ -95,20 +95,7 @@ public class WordService {
 
                 String[] data = parseCsvLine(line);
                 if (data.length >= 4) {
-                    Word word = new Word();
-                    word.setOriginalWord(data[0].trim());
-                    word.setTranslation(data[1].trim());
-                    word.setLanguage(data[2].trim());
-                    word.setProficiencyLevel(Integer.parseInt(data[3].trim()));
-
-                    // Handle optional fields
-                    if (data.length > 4) {
-                        word.setExampleUsage(data[4].trim());
-                    }
-                    if (data.length > 5) {
-                        word.setExplanation(data[5].trim());
-                    }
-
+                    Word word = createWord(data);
                     wordsToSave.add(word);
                 } else {
                     log.warn("Invalid CSV line format: {}", line);
@@ -117,12 +104,29 @@ public class WordService {
 
             if (!wordsToSave.isEmpty()) {
                 wordRepository.saveAll(wordsToSave);
-                log.info("Successfully imported {} words", wordsToSave.size());
             }
         } catch (IOException e) {
             log.error("Error reading CSV file", e);
             throw new RuntimeException("Error importing CSV: " + e.getMessage());
         }
+    }
+
+    @NotNull
+    private static Word createWord(String[] data) {
+        Word word = new Word();
+        word.setOriginalWord(data[0].trim());
+        word.setTranslation(data[1].trim());
+        word.setLanguage(data[2].trim());
+        word.setProficiencyLevel(Integer.parseInt(data[3].trim()));
+
+        // Handle optional fields
+        if (data.length > 4) {
+            word.setExampleUsage(data[4].trim());
+        }
+        if (data.length > 5) {
+            word.setExplanation(data[5].trim());
+        }
+        return word;
     }
 
     private boolean validateWord(Word word) {
@@ -177,13 +181,10 @@ public class WordService {
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public List<Word> getAllWords() {
-        log.info("Starting getAllWords() method");
         try {
-            log.info("Executing native SQL query");
             Query query = entityManager.createNativeQuery(
                     "SELECT * FROM words ORDER BY id", Word.class);
             List<Word> words = query.getResultList();
-            log.info("Retrieved {} words from database", words.size());
             if (words.isEmpty()) {
                 log.warn("No words found in database!");
             } else {
@@ -199,13 +200,10 @@ public class WordService {
     }
 
     @Transactional(readOnly = true)
-    public Word getWord(Long id) {
-        log.info("Getting word with id: {}", id);
+    public Word createWord(Long id) {
         try {
-            Word word = wordRepository.findById(id)
+            return wordRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Word not found with id: " + id));
-            log.info("Found word: {}", word);
-            return word;
         } catch (EntityNotFoundException e) {
             log.warn("Word not found with id: {}", id);
             throw e;
@@ -217,12 +215,9 @@ public class WordService {
 
     @Transactional
     public Word createWord(Word word) {
-        log.info("Creating new word: {}", word);
         try {
             word.setProficiencyLevel(1);
-            Word savedWord = wordRepository.save(word);
-            log.info("Successfully created word: {}", savedWord);
-            return savedWord;
+            return wordRepository.save(word);
         } catch (Exception e) {
             log.error("Error creating word: {}", word, e);
             throw e;
@@ -231,17 +226,14 @@ public class WordService {
 
     @Transactional
     public Word updateWord(Long id, Word updatedWord) {
-        log.info("Updating word with id: {} with data: {}", id, updatedWord);
         try {
-            Word existingWord = getWord(id);
+            Word existingWord = createWord(id);
             existingWord.setOriginalWord(updatedWord.getOriginalWord());
             existingWord.setTranslation(updatedWord.getTranslation());
             existingWord.setLanguage(updatedWord.getLanguage());
             existingWord.setExampleUsage(updatedWord.getExampleUsage());
             existingWord.setExplanation(updatedWord.getExplanation());
-            Word savedWord = wordRepository.save(existingWord);
-            log.info("Successfully updated word: {}", savedWord);
-            return savedWord;
+            return wordRepository.save(existingWord);
         } catch (Exception e) {
             log.error("Error updating word with id: {}", id, e);
             throw e;
@@ -250,11 +242,9 @@ public class WordService {
 
     @Transactional
     public void deleteWord(Long id) {
-        log.info("Deleting word with id: {}", id);
         try {
-            Word word = getWord(id);
+            Word word = createWord(id);
             wordRepository.delete(word);
-            log.info("Successfully deleted word with id: {}", id);
         } catch (Exception e) {
             log.error("Error deleting word with id: {}", id, e);
             throw e;
@@ -263,7 +253,6 @@ public class WordService {
 
     @Transactional(readOnly = true)
     public Word getRandomWord(String language) {
-        log.info("Getting random word with language: {}", language);
         try {
             List<Word> words;
             if (language != null) {
@@ -277,8 +266,6 @@ public class WordService {
                 return null; // Return null instead of throwing exception
             }
 
-            log.info("Found {} words matching criteria", words.size());
-
             List<Word> weightedList = new ArrayList<>();
             for (Word word : words) {
                 int weight = 6 - word.getProficiencyLevel();
@@ -287,9 +274,7 @@ public class WordService {
                 }
             }
 
-            Word selectedWord = weightedList.get(random.nextInt(weightedList.size()));
-            log.info("Selected random word: {}", selectedWord);
-            return selectedWord;
+            return weightedList.get(random.nextInt(weightedList.size()));
         } catch (Exception e) {
             log.error("Error getting random word", e);
             throw e;
@@ -298,23 +283,17 @@ public class WordService {
 
     @Transactional
     public TranslationCheckResponse checkTranslation(Long id, String translation) {
-        log.info("Checking translation for word id: {} with translation: {}", id, translation);
         try {
-            Word word = getWord(id);
+            Word word = createWord(id);
             boolean isCorrect = word.getTranslation().equalsIgnoreCase(translation.trim());
 
             if (isCorrect) {
                 word.setProficiencyLevel(Math.min(word.getProficiencyLevel() + 1, 5));
-                log.info("Correct answer for word '{}'. Proficiency increased to: {}",
-                        word.getOriginalWord(), word.getProficiencyLevel());
             } else {
                 word.setProficiencyLevel(Math.max(word.getProficiencyLevel() - 1, 1));
-                log.info("Incorrect answer for word '{}'. Proficiency decreased to: {}",
-                        word.getOriginalWord(), word.getProficiencyLevel());
             }
 
             wordRepository.save(word);
-            log.info("Translation check result: {}", isCorrect);
 
             return new TranslationCheckResponse(
                     isCorrect,
@@ -331,7 +310,6 @@ public class WordService {
 
     @Transactional
     public List<Word> bulkImport(List<Word> words) {
-        log.info("Starting bulk import of {} words", words.size());
         try {
             // Validate all words before saving
             for (Word word : words) {
@@ -340,10 +318,7 @@ public class WordService {
                 }
             }
 
-            // Save all words in a single transaction
-            List<Word> savedWords = wordRepository.saveAll(words);
-            log.info("Successfully bulk imported {} words", savedWords.size());
-            return savedWords;
+            return wordRepository.saveAll(words);
         } catch (Exception e) {
             log.error("Error bulk importing words", e);
             throw e;
@@ -352,12 +327,8 @@ public class WordService {
 
     @Transactional
     public int bulkDelete(List<Long> wordIds) {
-        log.info("Starting bulk delete of {} words", wordIds.size());
         try {
-            // Delete all words in a single transaction
-            int deletedCount = wordRepository.deleteByIdIn(wordIds);
-            log.info("Successfully bulk deleted {} words", deletedCount);
-            return deletedCount;
+            return wordRepository.deleteByIdIn(wordIds);
         } catch (Exception e) {
             log.error("Error bulk deleting words", e);
             throw e;
@@ -374,27 +345,18 @@ public class WordService {
 
     @Transactional(readOnly = true)
     public GrammarPracticeResponse getRandomGrammarPractice() {
-        log.info("Getting random grammar practice");
-
-        // Get random word
         Word randomWord = getRandomWord(null);
         if (randomWord == null) {
             throw new RuntimeException("No words available for grammar practice");
         }
 
-        // Get random grammar topic
         String grammarTopic = GRAMMAR_TOPICS[random.nextInt(GRAMMAR_TOPICS.length)];
-
-        log.info("Selected word: {} with grammar topic: {}", randomWord.getOriginalWord(), grammarTopic);
-
-        // Generate explanation for the grammar topic
         String explanation = generateGrammarExplanation(grammarTopic);
 
         return new GrammarPracticeResponse(randomWord, grammarTopic, false, null, null, explanation, null);
     }
 
     public String generateAudio(String text, String language) {
-        log.info("Generating audio for text: '{}' in language: '{}'", text, language);
         try {
             String defaultLanguage = language != null ? language : "en";
             return textToSpeechService.generateAudioBase64(text, defaultLanguage);
@@ -406,40 +368,33 @@ public class WordService {
 
     @Transactional(readOnly = true)
     public GrammarPracticeResponse validateGrammarPractice(Long wordId, String userSentence, String grammarTopic) {
-        log.info("Validating grammar practice for wordId: {}, sentence: {}, topic: {}", wordId, userSentence, grammarTopic);
-
-        Word word = getWord(wordId);
+        Word word = createWord(wordId);
         if (word == null) {
             throw new EntityNotFoundException("Word not found with id: " + wordId);
         }
 
-        // Use AI validation service
         AiGrammarValidationService.GrammarValidationResult validationResult =
                 aiValidationService.validateSentence(userSentence, word, grammarTopic);
 
-        log.info("AI validation result: {}", validationResult.isCorrect());
-
-        // Generowanie audio dla poprawnego zdania (correction lub userSentence)
-        String audioUrl = null;
         String textToAudio = validationResult.correction() != null && !validationResult.correction().trim().isEmpty()
                 ? validationResult.correction()
                 : userSentence;
 
-        log.info("Text to generate audio for: '{}'", textToAudio);
-        log.info("Correction field: '{}'", validationResult.correction());
-        log.info("User sentence: '{}'", userSentence);
-
-        if (textToAudio != null && !textToAudio.trim().isEmpty()) {
-            String language = word.getLanguage() != null ? word.getLanguage() : "en";
-            log.info("Word language: '{}', using language: '{}'", word.getLanguage(), language);
-            audioUrl = textToSpeechService.generateAudioBase64(textToAudio, language);
-            log.info("Generated audioUrl: {}", audioUrl != null ? "SUCCESS" : "NULL");
-        } else {
-            log.warn("Text to audio is null or empty: '{}'", textToAudio);
-        }
+        String audioUrl = getAudioUrl(textToAudio, word);
 
         return new GrammarPracticeResponse(word, grammarTopic, validationResult.isCorrect(),
                 validationResult.feedback(), validationResult.correction(), validationResult.explanation(), audioUrl);
+    }
+
+    @Nullable
+    private String getAudioUrl(String textToAudio, Word word) {
+        if (textToAudio != null && !textToAudio.trim().isEmpty()) {
+            String language = word.getLanguage() != null ? word.getLanguage() : "en";
+            return textToSpeechService.generateAudioBase64(textToAudio, language);
+        } else {
+            log.warn("Text to audio is null or empty: '{}'", textToAudio);
+            return null;
+        }
     }
 
     private String generateGrammarExplanation(String grammarTopic) {

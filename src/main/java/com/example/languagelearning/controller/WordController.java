@@ -31,7 +31,7 @@ public class WordController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Word> getWord(@PathVariable Long id) {
-        return ResponseEntity.ok(wordService.createWord(id));
+        return ResponseEntity.ok(wordService.getWord(id));
     }
 
     @PostMapping

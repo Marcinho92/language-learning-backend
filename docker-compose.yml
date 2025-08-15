@@ -5,10 +5,13 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/language_learning
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     networks:
       - language-learning-network
 
@@ -22,6 +25,16 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    networks:
+      - language-learning-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
     networks:
       - language-learning-network
 
@@ -41,6 +54,7 @@ services:
 
 volumes:
   postgres-data:
+  redis-data:
   pgadmin-data:
 
 networks:

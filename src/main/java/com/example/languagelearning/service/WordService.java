@@ -4,6 +4,7 @@ import com.example.languagelearning.dto.GrammarPracticeResponse;
 import com.example.languagelearning.dto.TranslationCheckResponse;
 import com.example.languagelearning.model.Word;
 import com.example.languagelearning.repository.WordRepository;
+import com.example.languagelearning.service.AiGrammarValidationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -78,6 +79,7 @@ public class WordService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "words", allEntries = true)
     public void importFromCsv(MultipartFile file) {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
@@ -103,6 +105,7 @@ public class WordService {
 
             if (!wordsToSave.isEmpty()) {
                 wordRepository.saveAll(wordsToSave);
+                log.info("Successfully imported {} words", wordsToSave.size());
             }
         } catch (IOException e) {
             log.error("Error reading CSV file", e);
@@ -179,6 +182,7 @@ public class WordService {
 
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "words", key = "'all'")
     public List<Word> getAllWords() {
         try {
             Query query = entityManager.createNativeQuery(
@@ -195,7 +199,8 @@ public class WordService {
     }
 
     @Transactional(readOnly = true)
-    public Word createWord(Long id) {
+    @org.springframework.cache.annotation.Cacheable(value = "words", key = "#id")
+    public Word getWord(Long id) {
         try {
             return wordRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Word not found with id: " + id));
@@ -209,6 +214,7 @@ public class WordService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "words", allEntries = true)
     public Word createWord(Word word) {
         try {
             word.setProficiencyLevel(1);
@@ -220,9 +226,10 @@ public class WordService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "words", allEntries = true)
     public Word updateWord(Long id, Word updatedWord) {
         try {
-            Word existingWord = createWord(id);
+            Word existingWord = getWord(id);
             existingWord.setOriginalWord(updatedWord.getOriginalWord());
             existingWord.setTranslation(updatedWord.getTranslation());
             existingWord.setLanguage(updatedWord.getLanguage());
@@ -236,9 +243,10 @@ public class WordService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "words", allEntries = true)
     public void deleteWord(Long id) {
         try {
-            Word word = createWord(id);
+            Word word = getWord(id);
             wordRepository.delete(word);
         } catch (Exception e) {
             log.error("Error deleting word with id: {}", id, e);
@@ -247,6 +255,7 @@ public class WordService {
     }
 
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "words", key = "'random_' + #language")
     public Word getRandomWord(String language) {
         try {
             List<Word> words;
@@ -279,7 +288,7 @@ public class WordService {
     @Transactional
     public TranslationCheckResponse checkTranslation(Long id, String translation) {
         try {
-            Word word = createWord(id);
+            Word word = getWord(id);
             boolean isCorrect = word.getTranslation().equalsIgnoreCase(translation.trim());
 
             if (isCorrect) {
@@ -304,6 +313,7 @@ public class WordService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "words", allEntries = true)
     public List<Word> bulkImport(List<Word> words) {
         try {
             // Validate all words before saving
@@ -321,6 +331,7 @@ public class WordService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "words", allEntries = true)
     public int bulkDelete(List<Long> wordIds) {
         try {
             return wordRepository.deleteByIdIn(wordIds);
@@ -339,13 +350,22 @@ public class WordService {
     };
 
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "grammar-practice", key = "'random'")
     public GrammarPracticeResponse getRandomGrammarPractice() {
+        log.info("Getting random grammar practice");
+
+        // Get random word
         Word randomWord = getRandomWord(null);
         if (randomWord == null) {
             throw new RuntimeException("No words available for grammar practice");
         }
 
+        // Get random grammar topic
         String grammarTopic = GRAMMAR_TOPICS[random.nextInt(GRAMMAR_TOPICS.length)];
+
+        log.info("Selected word: {} with grammar topic: {}", randomWord.getOriginalWord(), grammarTopic);
+
+        // Generate explanation for the grammar topic
         String explanation = generateGrammarExplanation(grammarTopic);
 
         return new GrammarPracticeResponse(randomWord, grammarTopic, false, null, null, explanation, null);
@@ -363,7 +383,7 @@ public class WordService {
 
     @Transactional(readOnly = true)
     public GrammarPracticeResponse validateGrammarPractice(Long wordId, String userSentence, String grammarTopic) {
-        Word word = createWord(wordId);
+        Word word = getWord(wordId);
         if (word == null) {
             throw new EntityNotFoundException("Word not found with id: " + wordId);
         }

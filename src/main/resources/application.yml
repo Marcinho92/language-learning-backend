@@ -7,9 +7,9 @@ spring:
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
-      idle-timeout: 300000ms
-      connection-timeout: 20000ms
-      max-lifetime: 1200000ms
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
       auto-commit: true
   jpa:
     hibernate:
@@ -73,7 +73,7 @@ redis:
   port: ${REDIS_PORT:6379}
   password: ${REDIS_PASSWORD:}
   database: ${REDIS_DATABASE:0}
-  timeout: 2000ms
+  timeout: 2000
   ssl:
     enabled: true
   lettuce:

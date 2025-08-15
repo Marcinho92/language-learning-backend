@@ -8,11 +8,12 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 5
       idle-timeout: 300000
-      connection-timeout: 20000
+      connection-timeout: 60000
       max-lifetime: 1200000
       auto-commit: true
       connection-test-query: SELECT 1
-      validation-timeout: 5000
+      validation-timeout: 10000
+      leak-detection-threshold: 60000
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
@@ -28,6 +29,10 @@ spring:
         min-idle: 0
         max-wait: -1
       shutdown-timeout: 100ms
+  data:
+    redis:
+      repositories:
+        enabled: false
     jpa:
     hibernate:
       ddl-auto: update
@@ -80,7 +85,8 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: INFO
     org.springframework.boot.autoconfigure: INFO
     org.springframework.boot.autoconfigure.jdbc: INFO
-    com.zaxxer.hikari: INFO
+    com.zaxxer.hikari: DEBUG
+    org.springframework.jdbc: DEBUG
 
 cors:
   allowed-origins:

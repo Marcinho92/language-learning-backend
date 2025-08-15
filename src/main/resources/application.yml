@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${DATABASE_URL}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/language_learning}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -11,6 +11,8 @@ spring:
       connection-timeout: 20000
       max-lifetime: 1200000
       auto-commit: true
+      connection-test-query: SELECT 1
+      validation-timeout: 5000
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
@@ -25,7 +27,8 @@ spring:
         max-idle: 8
         min-idle: 0
         max-wait: -1
-  jpa:
+      shutdown-timeout: 100ms
+    jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
@@ -41,10 +44,12 @@ spring:
           in_clause_parameter_padding: true
         order_updates: true
         batch_versioned_data: true
+        connection:
+          provider_disables_autocommit: true
     defer-datasource-initialization: true
-  sql:
-    init:
-      mode: always
+    sql:
+      init:
+        mode: always
   cache:
     type: none
   ai:
@@ -73,6 +78,9 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.boot.autoconfigure: DEBUG
+    org.springframework.boot.autoconfigure.jdbc: DEBUG
+    com.zaxxer.hikari: DEBUG
 
 cors:
   allowed-origins:

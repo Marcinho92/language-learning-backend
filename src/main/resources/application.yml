@@ -13,7 +13,7 @@ spring:
       auto-commit: true
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     open-in-view: false
     properties:
@@ -69,9 +69,9 @@ cors:
     - "https://langlearn.top"
 
 redis:
-  host: ${REDIS_HOST:localhost}
-  port: ${REDIS_PORT:6379}
-  password: ${REDIS_PASSWORD:}
+  host: redis.railway.internal
+  port: 6379
+  password: kTXzUzQxUWxPwOyoJlzCjDjBGmZzMasy
   database: ${REDIS_DATABASE:0}
   timeout: 2000
   ssl:
@@ -81,7 +81,7 @@ redis:
       max-active: 8
       max-idle: 8
       min-idle: 0
-      max-wait: -1ms
+      max-wait: -1
 
 ai:
   grammar:

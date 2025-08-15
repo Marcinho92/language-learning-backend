@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:language_learning}?sslmode=require&sslcert=&sslkey=&sslrootcert=
+    url: jdbc:postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -69,18 +69,18 @@ server:
 
 logging:
   level:
-    org.springframework.ai: DEBUG
-    com.example.languagelearning.service.AiGrammarValidationService: DEBUG
-    com.example.languagelearning.config.AiPromptsConfig: DEBUG
-    org.springframework.cache: TRACE
-    org.springframework.data.redis: DEBUG
-    com.example.languagelearning: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework.boot.autoconfigure: DEBUG
-    org.springframework.boot.autoconfigure.jdbc: DEBUG
-    com.zaxxer.hikari: DEBUG
+    org.springframework.ai: INFO
+    com.example.languagelearning.service.AiGrammarValidationService: INFO
+    com.example.languagelearning.config.AiPromptsConfig: INFO
+    org.springframework.cache: INFO
+    org.springframework.data.redis: INFO
+    com.example.languagelearning: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+    org.springframework.boot.autoconfigure: INFO
+    org.springframework.boot.autoconfigure.jdbc: INFO
+    com.zaxxer.hikari: INFO
 
 cors:
   allowed-origins:

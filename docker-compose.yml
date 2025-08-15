@@ -28,15 +28,15 @@ services:
     networks:
       - language-learning-network
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    command: redis-server --appendonly yes
-    volumes:
-      - redis-data:/data
-    networks:
-      - language-learning-network
+#  redis:
+#    image: redis:7-alpine
+#    ports:
+#      - "6379:6379"
+#    command: redis-server --appendonly yes
+#    volumes:
+#      - redis-data:/data
+#    networks:
+#      - language-learning-network
 
   pgadmin:
     image: dpage/pgadmin4

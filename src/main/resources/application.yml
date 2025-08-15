@@ -3,18 +3,36 @@ spring:
     url: jdbc:postgresql://postgres:5432/language_learning
     username: postgres
     password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000ms
+      connection-timeout: 20000ms
+      max-lifetime: 1200000ms
+      auto-commit: true
   jpa:
     hibernate:
       ddl-auto: create
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        jdbc:
+          batch_size: 50
+          fetch_size: 50
+        query:
+          in_clause_parameter_padding: true
+        order_updates: true
+        batch_versioned_data: true
     defer-datasource-initialization: true
   sql:
     init:
       mode: always
+  cache:
+    type: none
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
@@ -35,6 +53,12 @@ logging:
     org.springframework.ai: DEBUG
     com.example.languagelearning.service.AiGrammarValidationService: DEBUG
     com.example.languagelearning.config.AiPromptsConfig: DEBUG
+    org.springframework.cache: TRACE
+    org.springframework.data.redis: DEBUG
+    com.example.languagelearning: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 cors:
   allowed-origins:
@@ -50,6 +74,8 @@ redis:
   password: ${REDIS_PASSWORD:}
   database: ${REDIS_DATABASE:0}
   timeout: 2000ms
+  ssl:
+    enabled: true
   lettuce:
     pool:
       max-active: 8
@@ -305,4 +331,19 @@ ai:
         default: |
           Practice using this grammar structure in your sentences.
           
-          Make sure to use the given word in your sentence and apply the grammar topic correctly. 
+          Make sure to use the given word in your sentence and apply the grammar topic correctly.
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# OpenAI Configuration
+openai:
+  api:
+    key: ${OPENAI_API_KEY:} 

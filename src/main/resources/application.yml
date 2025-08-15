@@ -79,7 +79,7 @@ logging:
     com.example.languagelearning.config.AiPromptsConfig: INFO
     org.springframework.cache: INFO
     org.springframework.data.redis: INFO
-    com.example.languagelearning: INFO
+    com.example.languagelearning: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: INFO

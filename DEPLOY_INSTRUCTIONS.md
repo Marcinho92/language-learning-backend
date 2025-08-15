@@ -148,7 +148,6 @@ railway up
 ### Konfiguracja bazy danych
 - Railway automatycznie tworzy zmienną `DATABASE_URL` dla serwisu PostgreSQL
 - Nie musisz ręcznie ustawiać `DATABASE_URL` - Railway to robi automatycznie
-- Upewnij się, że profil `railway` jest aktywny (`SPRING_PROFILES_ACTIVE=railway`)
 
 ### Port i healthcheck
 - Aplikacja nasłuchuje na porcie określonym przez zmienną `PORT` (domyślnie 8080)

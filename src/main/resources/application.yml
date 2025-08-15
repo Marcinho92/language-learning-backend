@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/language_learning
-    username: postgres
-    password: postgres
+    url: ${DATABASE_URL}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -11,6 +11,20 @@ spring:
       connection-timeout: 20000
       max-lifetime: 1200000
       auto-commit: true
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    database: ${REDIS_DATABASE:0}
+    timeout: 2000
+    ssl:
+      enabled: true
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1
   jpa:
     hibernate:
       ddl-auto: update
@@ -67,21 +81,6 @@ cors:
     - "https://language-learning-frontend-production.up.railway.app"
     - "https://www.langlearn.top"
     - "https://langlearn.top"
-
-redis:
-  host: redis.railway.internal
-  port: 6379
-  password: kTXzUzQxUWxPwOyoJlzCjDjBGmZzMasy
-  database: ${REDIS_DATABASE:0}
-  timeout: 2000
-  ssl:
-    enabled: true
-  lettuce:
-    pool:
-      max-active: 8
-      max-idle: 8
-      min-idle: 0
-      max-wait: -1
 
 ai:
   grammar:

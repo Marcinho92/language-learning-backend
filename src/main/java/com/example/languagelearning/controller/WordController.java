@@ -16,6 +16,10 @@ import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElseGet;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @Slf4j
 @RestController
@@ -27,6 +31,23 @@ public class WordController {
     @GetMapping
     public ResponseEntity<List<Word>> getAllWords() {
         return ResponseEntity.ok(wordService.getAllWords());
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<Word>> getWordsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? 
+            Sort.by(sortBy).descending() : 
+            Sort.by(sortBy).ascending();
+        
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Word> words = wordService.getWordsPaginated(pageable);
+        
+        return ResponseEntity.ok(words);
     }
 
     @GetMapping("/{id}")

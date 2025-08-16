@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -196,6 +198,12 @@ public class WordService {
             log.error("Error retrieving all words", e);
             throw e;
         }
+    }
+
+    @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "words", key = "#pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+    public Page<Word> getWordsPaginated(Pageable pageable) {
+        return wordRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)

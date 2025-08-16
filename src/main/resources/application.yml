@@ -54,7 +54,12 @@ spring:
       init:
         mode: always
   cache:
-    type: none
+    type: redis
+    redis:
+      time-to-live: 300000  # 5 minut
+      cache-null-values: false
+      use-key-prefix: true
+      key-prefix: "words:"
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
@@ -350,9 +355,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,caches
   endpoint:
     health:
+      show-details: always
+    caches:
       show-details: always
 
 # OpenAI Configuration

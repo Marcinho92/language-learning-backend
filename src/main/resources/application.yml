@@ -20,13 +20,13 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       database: ${REDIS_DATABASE:0}
-      timeout: 2000
+      timeout: 5000
       ssl:
         enabled: false
       lettuce:
         pool:
-          max-active: 8
-          max-idle: 8
+          max-active: 4
+          max-idle: 2
           min-idle: 0
           max-wait: -1
         shutdown-timeout: 100
@@ -76,7 +76,7 @@ logging:
     com.example.languagelearning.service.AiGrammarValidationService: INFO
     com.example.languagelearning.config.AiPromptsConfig: INFO
     org.springframework.cache: INFO
-    org.springframework.data.redis: INFO
+    org.springframework.data.redis: DEBUG
     com.example.languagelearning: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: INFO
@@ -85,6 +85,7 @@ logging:
     org.springframework.boot.autoconfigure.jdbc: INFO
     com.zaxxer.hikari: DEBUG
     org.springframework.jdbc: DEBUG
+    io.lettuce.core: DEBUG
 
 cors:
   allowed-origins:

@@ -198,7 +198,6 @@ public class WordService {
         }
     }
 
-    @org.springframework.cache.annotation.Cacheable(value = "words", key = "#pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
     public Page<Word> getWordsPaginated(Pageable pageable) {
         return wordRepository.findAll(pageable);
     }

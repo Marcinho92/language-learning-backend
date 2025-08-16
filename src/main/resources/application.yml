@@ -60,6 +60,8 @@ spring:
       cache-null-values: false
       use-key-prefix: true
       key-prefix: "words:"
+      serialize-keys-as-strings: true
+      serialize-values-as-json: true
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}

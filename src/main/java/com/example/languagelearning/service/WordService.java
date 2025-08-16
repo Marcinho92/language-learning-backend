@@ -41,7 +41,6 @@ public class WordService {
 
     private static final String[] CSV_HEADERS = {"originalWord", "translation", "language", "proficiencyLevel", "exampleUsage", "explanation"};
 
-    @Transactional(readOnly = true)
     public byte[] exportToCsv() {
         List<Word> words = getAllWords();
 
@@ -183,7 +182,6 @@ public class WordService {
     }
 
     @SuppressWarnings("unchecked")
-    @Transactional(readOnly = true)
     @org.springframework.cache.annotation.Cacheable(value = "words", key = "'all'")
     public List<Word> getAllWords() {
         try {

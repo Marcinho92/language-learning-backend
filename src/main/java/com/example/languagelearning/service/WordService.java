@@ -205,7 +205,6 @@ public class WordService {
         return wordRepository.findAll(pageable);
     }
 
-    @Transactional(readOnly = true)
     @org.springframework.cache.annotation.Cacheable(value = "words", key = "#id")
     public Word getWord(Long id) {
         try {
@@ -261,7 +260,6 @@ public class WordService {
         }
     }
 
-    @Transactional(readOnly = true)
     @org.springframework.cache.annotation.Cacheable(value = "words", key = "'random_' + #language")
     public Word getRandomWord(String language) {
         try {
@@ -356,7 +354,6 @@ public class WordService {
             "Modal Verbs", "Gerunds and Infinitives", "Relative Clauses"
     };
 
-    @Transactional(readOnly = true)
     @org.springframework.cache.annotation.Cacheable(value = "grammar-practice", key = "'random'")
     public GrammarPracticeResponse getRandomGrammarPractice() {
         log.info("Getting random grammar practice");
@@ -388,7 +385,6 @@ public class WordService {
         }
     }
 
-    @Transactional(readOnly = true)
     public GrammarPracticeResponse validateGrammarPractice(Long wordId, String userSentence, String grammarTopic) {
         Word word = getWord(wordId);
         if (word == null) {

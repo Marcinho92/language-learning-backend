@@ -106,14 +106,14 @@ logging:
     org.springframework.data.redis: DEBUG
     com.example.languagelearning: DEBUG
     org.springframework.web: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: INFO
-    org.springframework.boot.autoconfigure: INFO
-    org.springframework.boot.autoconfigure.jdbc: INFO
-    com.zaxxer.hikari: DEBUG
-    org.springframework.jdbc: INFO
-    io.lettuce.core: INFO
-    org.springframework.transaction: DEBUG
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.springframework.boot.autoconfigure: WARN
+    org.springframework.boot.autoconfigure.jdbc: WARN
+    com.zaxxer.hikari: INFO
+    org.springframework.jdbc: WARN
+    io.lettuce.core: WARN
+    org.springframework.transaction: INFO
 
 cors:
   allowed-origins:

@@ -34,11 +34,27 @@ public class WordController {
     }
 
     @GetMapping("/paginated")
-    public ResponseEntity<Page<Word>> getWordsPaginated(
+    public ResponseEntity<Object> getWordsPaginated(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
+        
+        // Walidacja parametrów
+        if (page < 0) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "Page number must be non-negative", "page", page));
+        }
+        
+        if (size <= 0) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "Page size must be greater than zero", "size", size));
+        }
+        
+        // Maksymalny rozmiar strony (zabezpieczenie przed zbyt dużymi zapytaniami)
+        if (size > 1000) {
+            size = 1000;
+        }
         
         Sort sort = sortDir.equalsIgnoreCase("desc") ? 
             Sort.by(sortBy).descending() : 

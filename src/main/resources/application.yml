@@ -5,16 +5,31 @@ spring:
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 300000
-      connection-timeout: 60000
-      max-lifetime: 1200000
+      # Rozmiar puli - dostosowany do liczby rdzeni CPU
+      maximum-pool-size: 20
+      minimum-idle: 10
+      
+      # Timeouty - zoptymalizowane dla produkcji
+      connection-timeout: 30000
+      validation-timeout: 5000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      
+      # Optymalizacje wydajności
       auto-commit: true
       connection-test-query: SELECT 1
-      validation-timeout: 10000
-      leak-detection-threshold: 60000
-      connection-init-sql: SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE
+      leak-detection-threshold: 300000
+      
+      # Dodatkowe optymalizacje
+      pool-name: HikariPool-Words
+      register-mbeans: true
+      allow-pool-suspension: false
+      initialization-fail-timeout: 1
+      connection-init-sql: |
+        SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE;
+        SET SESSION work_mem = '16MB';
+        SET SESSION maintenance_work_mem = '64MB';
+        SET SESSION effective_cache_size = '256MB';
   data:
     jpa:
       # Wyłącz automatyczne ustawianie read-only dla operacji odczytu
@@ -400,12 +415,25 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,caches
+        include: health,info,metrics,caches,prometheus
+      base-path: /actuator
   endpoint:
     health:
       show-details: always
+      show-components: always
     caches:
       show-details: always
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        hikaricp.connections: true
+        hikaricp.connections.acquire: true
+        hikaricp.connections.usage: true
 
 # OpenAI Configuration
 openai:

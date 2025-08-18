@@ -52,8 +52,8 @@ public class WordController {
         }
         
         // Maksymalny rozmiar strony (zabezpieczenie przed zbyt dużymi zapytaniami)
-        if (size > 1000) {
-            size = 1000;
+        if (size > 5000) {
+            size = 5000;
         }
         
         Sort sort = sortDir.equalsIgnoreCase("desc") ? 

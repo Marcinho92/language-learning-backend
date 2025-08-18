@@ -10,11 +10,23 @@ spring:
       idle-timeout: 300000
       connection-timeout: 60000
       max-lifetime: 1200000
-      auto-commit: false
+      auto-commit: true
       connection-test-query: SELECT 1
       validation-timeout: 10000
       leak-detection-threshold: 60000
+      connection-init-sql: SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE
   data:
+    jpa:
+      # Wyłącz automatyczne ustawianie read-only dla operacji odczytu
+      open-in-view: false
+      repositories:
+        enabled: true
+      # Konfiguracja transakcji
+      properties:
+        hibernate:
+          # Wyłącz automatyczne read-only
+          connection:
+            read_only: false
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
@@ -47,8 +59,11 @@ spring:
           in_clause_parameter_padding: true
         order_updates: true
         batch_versioned_data: true
-        # connection:
-        #   provider_disables_autocommit: true
+        connection:
+          isolation: READ_COMMITTED
+          auto_commit: true
+        # Dodaj ustawienie dla Spring Data JPA
+        default_schema: public
     defer-datasource-initialization: true
     sql:
       init:
@@ -73,6 +88,11 @@ spring:
           max-tokens: 500
   autoconfigure:
     exclude: []
+  transaction:
+    default-timeout: 30s
+    rollback-on-commit-failure: false
+    # Wyłącz automatyczne read-only dla operacji odczytu
+    read-only: false
 
 server:
   port: 8080
@@ -91,8 +111,9 @@ logging:
     org.springframework.boot.autoconfigure: INFO
     org.springframework.boot.autoconfigure.jdbc: INFO
     com.zaxxer.hikari: DEBUG
-    org.springframework.jdbc: DEBUG
-    io.lettuce.core: DEBUG
+    org.springframework.jdbc: INFO
+    io.lettuce.core: INFO
+    org.springframework.transaction: DEBUG
 
 cors:
   allowed-origins:

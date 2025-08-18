@@ -96,24 +96,46 @@ spring:
 
 server:
   port: 8080
+  # Request Logging
+  servlet:
+    context-path: /
+  # Logowanie requestów
+  accesslog:
+    enabled: true
+    pattern: '%t %a %r %s (%D ms) %b %{User-Agent}i'
+    directory: logs
+    file-date-format: .yyyy-MM-dd
+    prefix: access
+    suffix: .log
 
 logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/application.log
+    max-size: 10MB
+    max-history: 30
   level:
     org.springframework.ai: INFO
     com.example.languagelearning.service.AiGrammarValidationService: INFO
     com.example.languagelearning.config.AiPromptsConfig: INFO
+    com.example.languagelearning: INFO
     org.springframework.cache: INFO
-    org.springframework.data.redis: DEBUG
-    com.example.languagelearning: DEBUG
+    org.springframework.data.redis: INFO
     org.springframework.web: INFO
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: INFO
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter: INFO
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
     org.hibernate.SQL: OFF
-    org.hibernate.type.descriptor.sql.BasicBinder: OFF
     org.springframework.boot.autoconfigure: WARN
     org.springframework.boot.autoconfigure.jdbc: WARN
     com.zaxxer.hikari: INFO
     org.springframework.jdbc: WARN
     io.lettuce.core: WARN
     org.springframework.transaction: INFO
+    # Logowanie requestów i odpowiedzi
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
 
 cors:
   allowed-origins:

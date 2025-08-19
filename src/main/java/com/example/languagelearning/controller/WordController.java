@@ -210,4 +210,28 @@ public class WordController {
             throw e;
         }
     }
+
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, Object>> health() {
+        try {
+            // Sprawdź połączenie z bazą
+            long wordCount = wordService.getAllWords().size();
+            
+            return ResponseEntity.ok(Map.of(
+                "status", "UP",
+                "timestamp", java.time.LocalDateTime.now().toString(),
+                "database", "CONNECTED",
+                "cache", "ENABLED",
+                "wordCount", wordCount
+            ));
+        } catch (Exception e) {
+            log.error("Health check failed", e);
+            return ResponseEntity.status(503).body(Map.of(
+                "status", "DOWN",
+                "error", e.getMessage(),
+                "timestamp", java.time.LocalDateTime.now().toString()
+            ));
+        }
+    }
+
 } 

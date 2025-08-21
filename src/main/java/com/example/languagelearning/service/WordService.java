@@ -34,7 +34,7 @@ public class WordService {
     private final WordRepository wordRepository;
     private final AiGrammarValidationService aiValidationService;
     private final TextToSpeechService textToSpeechService;
-    private final Random random = new Random();
+    private final Random random = new Random(System.currentTimeMillis());
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -257,7 +257,6 @@ public class WordService {
         }
     }
 
-    @org.springframework.cache.annotation.Cacheable(value = "words", key = "'random_' + #language")
     public Word getRandomWord(String language) {
         try {
             List<Word> words;
@@ -280,7 +279,9 @@ public class WordService {
                 }
             }
 
-            return weightedList.get(random.nextInt(weightedList.size()));
+            // Use current timestamp for better randomization
+            int randomIndex = (int) (System.currentTimeMillis() % weightedList.size());
+            return weightedList.get(randomIndex);
         } catch (Exception e) {
             log.error("Error getting random word", e);
             throw e;

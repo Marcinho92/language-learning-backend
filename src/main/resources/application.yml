@@ -119,7 +119,7 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   level:
     # Logowanie czasu odpowiedzi endpointów
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    com.example.languagelearning.config.ResponseTimeInterceptor: INFO
     # Podstawowe logowanie aplikacji
     com.example.languagelearning: INFO
     # Wyłącz zbędne logi

@@ -14,9 +14,9 @@ public class RequestLoggingConfig {
         filter.setIncludePayload(false);
         filter.setIncludeHeaders(false);
         filter.setMaxPayloadLength(10000);
-        filter.setBeforeMessagePrefix("REQUEST DATA : ");
-        filter.setAfterMessagePrefix("RESPONSE DATA : ");
-        filter.setAfterMessageSuffix(" - Response Time: ");
+        filter.setBeforeMessagePrefix("REQUEST: ");
+        filter.setAfterMessagePrefix("RESPONSE: ");
+        filter.setAfterMessageSuffix(" - Time: ");
         return filter;
     }
 }

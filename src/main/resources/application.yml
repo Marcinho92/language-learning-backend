@@ -120,10 +120,8 @@ logging:
   level:
     # Logowanie czasu odpowiedzi endpointów
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
-    org.springframework.web.servlet.DispatcherServlet: DEBUG
     # Podstawowe logowanie aplikacji
     com.example.languagelearning: INFO
-    org.springframework.web: INFO
     # Wyłącz zbędne logi
     org.hibernate.SQL: OFF
     org.springframework.boot.autoconfigure: WARN

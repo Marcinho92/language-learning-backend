@@ -20,8 +20,10 @@ public class ResponseTimeInterceptor implements HandlerInterceptor {
         long startTime = System.currentTimeMillis();
         request.setAttribute(START_TIME_ATTRIBUTE, startTime);
         
-        log.info("REQUEST: {} {}", request.getMethod(), request.getRequestURI() + 
-                (request.getQueryString() != null ? "?" + request.getQueryString() : ""));
+        String endpoint = request.getMethod() + " " + request.getRequestURI() + 
+                (request.getQueryString() != null ? "?" + request.getQueryString() : "");
+        
+        log.info("🚀 REQUEST STARTED: {}", endpoint);
         
         return true;
     }

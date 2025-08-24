@@ -118,10 +118,10 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   level:
-    # Logowanie czasu odpowiedzi endpointów
-    com.example.languagelearning.config.ResponseTimeInterceptor: INFO
-    com.example.languagelearning.config.DatabasePerformanceInterceptor: INFO
-    com.example.languagelearning.aspect.DatabasePerformanceAspect: INFO
+    # Logowanie czasu odpowiedzi endpointów - ustaw na DEBUG aby zobaczyć wszystkie logi
+    com.example.languagelearning.config.ResponseTimeInterceptor: DEBUG
+    com.example.languagelearning.config.DatabasePerformanceInterceptor: DEBUG
+    com.example.languagelearning.aspect.DatabasePerformanceAspect: DEBUG
     # Podstawowe logowanie aplikacji
     com.example.languagelearning: INFO
     # Wyłącz zbędne logi

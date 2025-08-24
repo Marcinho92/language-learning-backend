@@ -2,15 +2,18 @@ package com.example.languagelearning.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ResponseTimeInterceptor implements HandlerInterceptor {
 
     private static final String START_TIME_ATTRIBUTE = "startTime";
+    private final DatabasePerformanceInterceptor dbInterceptor;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -30,10 +33,19 @@ public class ResponseTimeInterceptor implements HandlerInterceptor {
         long responseTime = endTime - startTime;
         
         String status = response.getStatus() >= 400 ? "ERROR" : "SUCCESS";
-        log.info("RESPONSE: {} {} - Status: {} - Time: {}ms", 
-                request.getMethod(), 
-                request.getRequestURI() + (request.getQueryString() != null ? "?" + request.getQueryString() : ""),
-                status,
-                responseTime);
+        String endpoint = request.getMethod() + " " + request.getRequestURI() + 
+                (request.getQueryString() != null ? "?" + request.getQueryString() : "");
+        
+        // Logowanie z ostrzeżeniami dla wolnych zapytań
+        if (responseTime > 3000) { // > 3 sekundy
+            log.warn("SLOW ENDPOINT: {} - Status: {} - Time: {}ms ⚠️", endpoint, status, responseTime);
+        } else if (responseTime > 1000) { // > 1 sekunda
+            log.info("RESPONSE: {} - Status: {} - Time: {}ms 🐌", endpoint, status, responseTime);
+        } else {
+            log.info("RESPONSE: {} - Status: {} - Time: {}ms ✅", endpoint, status, responseTime);
+        }
+        
+        // Zaloguj podsumowanie czasu DB dla tego endpointu
+        dbInterceptor.logTotalDbTime(request);
     }
 }

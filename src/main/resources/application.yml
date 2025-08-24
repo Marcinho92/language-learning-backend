@@ -120,6 +120,8 @@ logging:
   level:
     # Logowanie czasu odpowiedzi endpointów
     com.example.languagelearning.config.ResponseTimeInterceptor: INFO
+    com.example.languagelearning.config.DatabasePerformanceInterceptor: INFO
+    com.example.languagelearning.aspect.DatabasePerformanceAspect: INFO
     # Podstawowe logowanie aplikacji
     com.example.languagelearning: INFO
     # Wyłącz zbędne logi

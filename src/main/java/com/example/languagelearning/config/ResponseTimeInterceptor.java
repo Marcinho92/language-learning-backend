@@ -41,11 +41,13 @@ public class ResponseTimeInterceptor implements HandlerInterceptor {
         // Logowanie z ostrzeżeniami dla wolnych zapytań
         if (responseTime > 3000) { // > 3 sekundy
             log.warn("SLOW ENDPOINT: {} - Status: {} - Time: {}ms ⚠️", endpoint, status, responseTime);
-        } else if (responseTime > 1000) { // > 1 sekunda
-            log.info("RESPONSE: {} - Status: {} - Time: {}ms 🐌", endpoint, status, responseTime);
-        } else {
-            log.info("RESPONSE: {} - Status: {} - Time: {}ms ✅", endpoint, status, responseTime);
         }
+        else if (responseTime > 1000) { // > 1 sekunda
+            log.info("RESPONSE: {} - Status: {} - Time: {}ms 🐌", endpoint, status, responseTime);
+        }
+//        else {
+//            log.info("RESPONSE: {} - Status: {} - Time: {}ms ✅", endpoint, status, responseTime);
+//        }
         
         // Zaloguj podsumowanie czasu DB dla tego endpointu
         dbInterceptor.logTotalDbTime(request);

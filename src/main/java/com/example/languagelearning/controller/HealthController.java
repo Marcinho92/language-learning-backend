@@ -37,6 +37,17 @@ public class HealthController {
         return ResponseEntity.ok(response);
     }
     
+    @GetMapping("/api/cache/health")
+    public ResponseEntity<Map<String, Object>> cacheHealthCheck() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "UP");
+        response.put("timestamp", LocalDateTime.now());
+        response.put("service", "Cache Health Check");
+        response.put("component", "Redis Cache");
+        
+        return ResponseEntity.ok(response);
+    }
+    
     @GetMapping("/api/words/health")
     public ResponseEntity<Map<String, Object>> railwayHealthCheck() {
         Map<String, Object> response = new HashMap<>();

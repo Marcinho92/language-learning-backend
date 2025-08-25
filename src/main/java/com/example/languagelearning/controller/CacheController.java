@@ -83,28 +83,5 @@ public class CacheController {
         }
     }
 
-    @GetMapping("/health")
-    public ResponseEntity<Map<String, String>> checkCacheHealth() {
-        log.info("Checking cache health");
-        try {
-            // Try to set and get a test value
-            String testKey = "health_check";
-            String testValue = "ok";
-            
-            cacheService.set(testKey, testValue, 60); // 60 seconds TTL
-            var result = cacheService.get(testKey, String.class);
-            
-            if (result.isPresent() && testValue.equals(result.get())) {
-                cacheService.delete(testKey);
-                return ResponseEntity.ok(Map.of("status", "healthy", "message", "Cache is working properly"));
-            } else {
-                return ResponseEntity.status(503)
-                        .body(Map.of("status", "unhealthy", "message", "Cache read/write test failed"));
-            }
-        } catch (Exception e) {
-            log.error("Cache health check failed", e);
-            return ResponseEntity.status(503)
-                    .body(Map.of("status", "unhealthy", "message", "Cache health check failed: " + e.getMessage()));
-        }
-    }
+
 }

@@ -36,4 +36,16 @@ public class HealthController {
         
         return ResponseEntity.ok(response);
     }
+    
+    @GetMapping("/api/words/health")
+    public ResponseEntity<Map<String, Object>> railwayHealthCheck() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "UP");
+        response.put("timestamp", LocalDateTime.now());
+        response.put("service", "Language Learning Backend");
+        response.put("version", "1.0.0");
+        response.put("railway", "health-check");
+        
+        return ResponseEntity.ok(response);
+    }
 }

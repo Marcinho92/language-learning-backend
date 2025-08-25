@@ -16,12 +16,12 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         // Interceptor do mierzenia czasu odpowiedzi endpointów
         registry.addInterceptor(responseTimeInterceptor)
-                .addPathPatterns("/api/**")  // Tylko dla endpointów API
+                .addPathPatterns("/", "/api/**")  // Dodaj root endpoint i API
                 .excludePathPatterns("/actuator/**"); // Wyłącz dla Actuator
         
         // Interceptor do inicjalizacji liczników DB
         registry.addInterceptor(databasePerformanceInterceptor)
-                .addPathPatterns("/api/**")  // Tylko dla endpointów API
+                .addPathPatterns("/", "/api/**")  // Dodaj root endpoint i API
                 .excludePathPatterns("/actuator/**"); // Wyłącz dla Actuator
         
         System.out.println("🔧 Interceptors registered successfully!");

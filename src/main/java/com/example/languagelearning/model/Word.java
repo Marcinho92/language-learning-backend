@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -26,8 +25,6 @@ public class Word {
     @NotBlank(message = "Language cannot be empty")
     @Column(nullable = false)
     private String language;
-
-
 
     @Min(value = 1, message = "Proficiency level must be at least 1")
     @Max(value = 5, message = "Proficiency level must be at most 5")

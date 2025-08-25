@@ -4,7 +4,6 @@ import com.example.languagelearning.dto.GrammarPracticeResponse;
 import com.example.languagelearning.dto.TranslationCheckResponse;
 import com.example.languagelearning.model.Word;
 import com.example.languagelearning.repository.WordRepository;
-import com.example.languagelearning.service.AiGrammarValidationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;

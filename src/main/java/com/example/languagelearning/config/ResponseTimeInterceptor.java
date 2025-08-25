@@ -23,7 +23,7 @@ public class ResponseTimeInterceptor implements HandlerInterceptor {
         String endpoint = request.getMethod() + " " + request.getRequestURI() + 
                 (request.getQueryString() != null ? "?" + request.getQueryString() : "");
         
-//        log.info("🚀 REQUEST STARTED: {}", endpoint);
+        log.info("🚀 REQUEST STARTED: {}", endpoint);
         
         return true;
     }

@@ -42,9 +42,10 @@ public class DatabasePerformanceInterceptor implements HandlerInterceptor {
             log.warn("SLOW DB OPERATION: {} - Operation: {} - Time: {}ms ⚠️", endpoint, operation, duration);
         } else if (duration > 500) { // > 500ms
             log.info("DB OPERATION: {} - Operation: {} - Time: {}ms 🐌", endpoint, operation, duration);
-        } else {
-            log.debug("DB OPERATION: {} - Operation: {} - Time: {}ms ✅", endpoint, operation, duration);
         }
+//        else {
+//            log.debug("DB OPERATION: {} - Operation: {} - Time: {}ms ✅", endpoint, operation, duration);
+//        }
     }
 
     public void logTotalDbTime(HttpServletRequest request) {

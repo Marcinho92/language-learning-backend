@@ -136,6 +136,7 @@ cors:
     - "https://language-learning-frontend-production.up.railway.app"
     - "https://www.langlearn.top"
     - "https://langlearn.top"
+    - "https://api-gateway-production-1b48.up.railway.app"
 
 ai:
   grammar:

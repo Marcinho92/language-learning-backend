@@ -20,7 +20,6 @@ public class PracticeGenerationService {
         this.chatClient = chatClientBuilder.build();
     }
 
-    @org.springframework.cache.annotation.Cacheable(value = "ai-responses", key = "'practice_' + #request.sourceLanguage() + '_' + #request.targetLanguage() + '_' + #request.level() + '_' + #request.sentenceCount() + '_' + #request.topic()")
     public PracticeGenerationResponse generatePracticeText(PracticeGenerationRequest request) {
         String prompt = buildPrompt(request);
         String aiResponse = chatClient.prompt()
@@ -30,7 +29,6 @@ public class PracticeGenerationService {
         return new PracticeGenerationResponse(aiResponse);
     }
 
-    @org.springframework.cache.annotation.Cacheable(value = "ai-responses", key = "'verify_' + #request.sourceLanguage() + '_' + #request.sourceText() + '_' + #request.targetLanguage() + '_' + #request.userTranslation()")
     public TranslationVerificationResponse verifyTranslation(TranslationVerificationRequest request) {
         String prompt = buildVerificationPrompt(request);
         String aiResponse = chatClient.prompt()

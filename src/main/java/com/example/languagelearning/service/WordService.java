@@ -351,7 +351,6 @@ public class WordService {
             "Modal Verbs", "Gerunds and Infinitives", "Relative Clauses"
     };
 
-    @org.springframework.cache.annotation.Cacheable(value = "grammar-practice", key = "'random'")
     public GrammarPracticeResponse getRandomGrammarPractice() {
         log.info("Getting random grammar practice");
 

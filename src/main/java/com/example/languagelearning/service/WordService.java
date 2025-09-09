@@ -357,7 +357,12 @@ public class WordService {
         // Get random word
         Word randomWord = getRandomWord(null);
         if (randomWord == null) {
-            throw new RuntimeException("No words available for grammar practice");
+            log.warn("No words available for grammar practice - returning empty response");
+            return new GrammarPracticeResponse(null, null, false, 
+                "Brak słów w bazie danych. Dodaj słowa, aby rozpocząć ćwiczenia gramatyczne.", 
+                null, 
+                "Aby rozpocząć ćwiczenia gramatyczne, musisz najpierw dodać słowa do bazy danych.", 
+                null);
         }
 
         // Get random grammar topic

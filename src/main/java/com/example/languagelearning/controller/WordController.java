@@ -166,7 +166,9 @@ public class WordController {
     @DeleteMapping("/bulk")
     public ResponseEntity<Map<String, Object>> bulkDelete(@RequestBody List<Long> wordIds) {
         try {
+            log.info("Bulk delete request received with {} wordIds: {}", wordIds.size(), wordIds);
             int deletedCount = wordService.bulkDelete(wordIds);
+            log.info("Successfully deleted {} words", deletedCount);
             return ResponseEntity.ok(Map.of(
                     "message", "Successfully deleted " + deletedCount + " words",
                     "deletedCount", deletedCount
@@ -178,8 +180,17 @@ public class WordController {
     }
 
     @DeleteMapping("/bulk-delete")
-    public ResponseEntity<Map<String, Object>> bulkDeleteAlias(@RequestBody List<Long> wordIds) {
-        return bulkDelete(wordIds);
+    public ResponseEntity<Map<String, Object>> bulkDeleteAlias(@RequestBody Map<String, List<Long>> request) {
+        try {
+            List<Long> wordIds = request.get("wordIds");
+            if (wordIds == null || wordIds.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "wordIds is required and cannot be empty"));
+            }
+            return bulkDelete(wordIds);
+        } catch (Exception e) {
+            log.error("Error in bulkDeleteAlias", e);
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid request format: " + e.getMessage()));
+        }
     }
 
     // Grammar Practice Endpoints

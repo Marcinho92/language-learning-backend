@@ -177,6 +177,11 @@ public class WordController {
         }
     }
 
+    @DeleteMapping("/bulk-delete")
+    public ResponseEntity<Map<String, Object>> bulkDeleteAlias(@RequestBody List<Long> wordIds) {
+        return bulkDelete(wordIds);
+    }
+
     // Grammar Practice Endpoints
     @GetMapping("/grammar-practice")
     public ResponseEntity<GrammarPracticeResponse> getRandomGrammarPractice() {

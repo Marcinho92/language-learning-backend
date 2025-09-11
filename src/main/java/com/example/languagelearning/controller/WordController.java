@@ -143,6 +143,11 @@ public class WordController {
         }
     }
 
+    @PostMapping("/import/csv")
+    public ResponseEntity<Void> importFromCsvAlias(@RequestParam("file") MultipartFile file) {
+        return importFromCsv(file);
+    }
+
     @PostMapping("/bulk")
     public ResponseEntity<Map<String, Object>> bulkImport(@RequestBody List<Word> words) {
         try {

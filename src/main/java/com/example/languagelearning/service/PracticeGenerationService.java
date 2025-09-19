@@ -16,8 +16,8 @@ public class PracticeGenerationService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
-    public PracticeGenerationService(ChatClient.Builder chatClientBuilder) {
-        this.chatClient = chatClientBuilder.build();
+    public PracticeGenerationService(ChatClient chatClient) {
+        this.chatClient = chatClient;
     }
 
     public PracticeGenerationResponse generatePracticeText(PracticeGenerationRequest request) {

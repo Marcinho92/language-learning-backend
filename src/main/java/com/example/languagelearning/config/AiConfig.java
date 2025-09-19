@@ -10,11 +10,12 @@ import org.springframework.context.annotation.Configuration;
 public class AiConfig {
 
     @Bean
-    public ChatClient.Builder chatClientBuilder(ChatModel chatModel) {
+    public ChatClient chatClient(ChatModel chatModel) {
         return ChatClient.builder(chatModel)
                 .defaultOptions(OpenAiChatOptions.builder()
                         .model("gpt-4o")
                         .temperature(0.4)
-                        .build());
+                        .build())
+                .build();
     }
 }

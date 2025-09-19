@@ -19,8 +19,8 @@ public class AiGrammarValidationService {
     private final AiPromptsConfig promptsConfig;
 
     @Autowired
-    public AiGrammarValidationService(ChatClient.Builder chatClientBuilder, AiPromptsConfig promptsConfig) {
-        this.chatClient = chatClientBuilder.build();
+    public AiGrammarValidationService(ChatClient chatClient, AiPromptsConfig promptsConfig) {
+        this.chatClient = chatClient;
         this.promptsConfig = promptsConfig;
     }
 

@@ -46,7 +46,8 @@ public class WordController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) String search) {
         
         // Walidacja parametrów
         if (page < 0) {
@@ -69,7 +70,7 @@ public class WordController {
             Sort.by(sortBy).ascending();
         
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Word> words = wordService.getWordsPaginated(pageable);
+        Page<Word> words = wordService.getWordsPaginated(pageable, search);
         
         return ResponseEntity.ok(words);
     }

@@ -197,7 +197,10 @@ public class WordService {
         }
     }
 
-    public Page<Word> getWordsPaginated(Pageable pageable) {
+    public Page<Word> getWordsPaginated(Pageable pageable, String search) {
+        if (search != null && !search.trim().isEmpty()) {
+            return wordRepository.findByOriginalWordOrTranslationContainingIgnoreCase(search.trim(), pageable);
+        }
         return wordRepository.findAll(pageable);
     }
 

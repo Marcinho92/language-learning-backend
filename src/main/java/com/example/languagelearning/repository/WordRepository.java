@@ -19,4 +19,8 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Query(value = "SELECT w FROM Word w ORDER BY w.id",
            countQuery = "SELECT COUNT(w) FROM Word w")
     Page<Word> findAllWithPagination(Pageable pageable);
+    
+    @Query(value = "SELECT w FROM Word w WHERE LOWER(w.originalWord) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(w.translation) LIKE LOWER(CONCAT('%', :search, '%'))",
+           countQuery = "SELECT COUNT(w) FROM Word w WHERE LOWER(w.originalWord) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(w.translation) LIKE LOWER(CONCAT('%', :search, '%'))")
+    Page<Word> findByOriginalWordOrTranslationContainingIgnoreCase(String search, Pageable pageable);
 } 

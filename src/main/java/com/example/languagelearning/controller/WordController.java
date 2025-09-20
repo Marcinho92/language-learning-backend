@@ -55,13 +55,17 @@ public class WordController {
                 .body(Map.of("error", "Page number must be non-negative", "page", page));
         }
         
-        if (size <= 0) {
+        // Obsługa "Show All" - size=-1 oznacza pobranie wszystkich rekordów
+        if (size == -1) {
+            size = Integer.MAX_VALUE; // Ustaw bardzo dużą wartość dla "wszystkich"
+        } else if (size <= 0) {
             return ResponseEntity.badRequest()
                 .body(Map.of("error", "Page size must be greater than zero", "size", size));
         }
         
         // Maksymalny rozmiar strony (zabezpieczenie przed zbyt dużymi zapytaniami)
-        if (size > 5000) {
+        // Ale nie ograniczaj jeśli użytkownik chce wszystkie rekordy (size=-1)
+        if (size > 5000 && size != Integer.MAX_VALUE) {
             size = 5000;
         }
         
